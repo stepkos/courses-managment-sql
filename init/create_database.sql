@@ -2,7 +2,7 @@
 
 -- DROP DATABASE IF EXISTS student_cource_resource_managments;
 
-CREATE DATABASE student_cource_resource_managments
+CREATE DATABASE student_course_resource_managments
     WITH
     OWNER = postgres
     ENCODING = 'UTF8'
