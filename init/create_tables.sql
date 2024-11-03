@@ -27,20 +27,22 @@ DROP TABLE IF EXISTS public.faculty_administrators;
 DROP TABLE IF EXISTS public.faculties;
 DROP TABLE IF EXISTS public.administrators;
 
+-- TODO sizes
+
 CREATE TABLE IF NOT EXISTS public.administrators (
     id SERIAL PRIMARY KEY,
     first_name VARCHAR(255) NOT NULL,
     surname VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
+    password TEXT NOT NULL,
     is_active BOOLEAN NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.faculties (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    phone VARCHAR(20),
-    website VARCHAR(255)
+    email TEXT CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    phone TEXT CHECK (phone ~* '^\+?[0-9\s-]*$'),
+    website TEXT CHECK (website ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$')
 );
 
 CREATE TABLE IF NOT EXISTS public.faculty_administrators (
@@ -53,8 +55,8 @@ CREATE TABLE IF NOT EXISTS public.fields_of_study (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     faculty_id INTEGER REFERENCES faculties(id),
-    description TEXT,
-    start_year INTEGER
+    description VARCHAR(255),
+    start_year SMALLINT
 );
 
 CREATE TABLE IF NOT EXISTS public.terms (
