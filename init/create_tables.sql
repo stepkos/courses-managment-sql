@@ -97,8 +97,8 @@ CREATE TABLE IF NOT EXISTS public.courses (
 
 CREATE TABLE IF NOT EXISTS public.college_terms (
     id SERIAL PRIMARY KEY,
-    start_date TIMESTAMP NOT NULL,
-    end_date TIMESTAMP NOT NULL
+    start_date TIMESTAMPTZ NOT NULL,
+    end_date TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.hosts (
@@ -142,8 +142,8 @@ CREATE TABLE IF NOT EXISTS public.entries (
     id SERIAL PRIMARY KEY,
     group_id INTEGER REFERENCES groups(id) NOT NULL,
     title VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     content TEXT NOT NULL,
     host_id INTEGER REFERENCES hosts(id) NOT NULL
 );
@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS public.comment_entries (
     commenter_id INTEGER,
     commenter_type VARCHAR(255),
     content TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     entry_id INTEGER REFERENCES entries(id)
 );
 
@@ -165,7 +165,7 @@ CREATE TABLE IF NOT EXISTS public.entry_files (
 CREATE TABLE IF NOT EXISTS public.exercises (
     id SERIAL PRIMARY KEY,
     entry_id INTEGER REFERENCES entries(id),
-    due_date TIMESTAMP
+    due_date TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS public.solutions (
@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS public.solutions (
     exercise_id INTEGER REFERENCES exercises(id),
     student_id INTEGER REFERENCES students(id),
     grade INTEGER,
-    submitted_at TIMESTAMP,
+    submitted_at TIMESTAMPTZ,
     text_answer TEXT
 );
 
@@ -188,7 +188,7 @@ CREATE TABLE IF NOT EXISTS public.solution_comments (
     commenter_type VARCHAR(255),
     solution_id INTEGER REFERENCES solutions(id),
     content TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS public.tests (
@@ -196,13 +196,13 @@ CREATE TABLE IF NOT EXISTS public.tests (
     entry_id INTEGER REFERENCES entries(id),
     title VARCHAR(255),
     description TEXT,
-    available_from_date TIMESTAMP,
-    available_to_date TIMESTAMP,
+    available_from_date TIMESTAMPTZ,
+    available_to_date TIMESTAMPTZ,
     max_seconds_for_open INTEGER,
     max_seconds_for_closed INTEGER,
     duration_in_minutes INTEGER,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS public.attempts (
@@ -210,8 +210,8 @@ CREATE TABLE IF NOT EXISTS public.attempts (
     student_id INTEGER REFERENCES students(id),
     test_id INTEGER REFERENCES tests(id),
     score INTEGER,
-    attempt_at TIMESTAMP,
-    submitted_at TIMESTAMP
+    attempt_at TIMESTAMPTZ,
+    submitted_at TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS public.open_questions (
@@ -234,7 +234,7 @@ CREATE TABLE IF NOT EXISTS public.choices (
 
 CREATE TABLE IF NOT EXISTS public.closed_answers (
     id SERIAL PRIMARY KEY,
-    submitted_at TIMESTAMP,
+    submitted_at TIMESTAMPTZ,
     closed_question_id INTEGER REFERENCES closed_questions(id),
     attempt_id INTEGER REFERENCES attempts(id)
 );
@@ -248,7 +248,7 @@ CREATE TABLE IF NOT EXISTS public.closed_answer_choices (
 CREATE TABLE IF NOT EXISTS public.open_answers (
     id SERIAL PRIMARY KEY,
     is_correct BOOLEAN,
-    submitted_at TIMESTAMP,
+    submitted_at TIMESTAMPTZ,
     open_question_id INTEGER REFERENCES open_questions(id),
     content TEXT,
     attempt_id INTEGER REFERENCES attempts(id)
