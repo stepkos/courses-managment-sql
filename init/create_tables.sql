@@ -32,16 +32,16 @@ DROP TABLE IF EXISTS public.administrators;
 -- ABSTRACT TABLES
 
 CREATE TABLE IF NOT EXISTS public.users (
-    firstName VARCHAR(50) NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
     surname VARCHAR(50) NOT NULL,
     email TEXT CHECK (email ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$') UNIQUE,
     password TEXT NOT NULL,
-    isActive BOOLEAN
+    is_active BOOLEAN
 );
 
 CREATE TABLE IF NOT EXISTS public.answers (
     points INTEGER,
-    submittedAt TIMESTAMPTZ
+    submitted_at TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS public.question (
@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS public.question (
 );
 
 CREATE TABLE IF NOT EXISTS public.files (
-    fileUrl TEXT CHECK (fileUrl ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$'),
-    uploadedAt TIMESTAMPTZ
+    file_url TEXT CHECK (file_url ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$'),
+    uploaded_at TIMESTAMPTZ
 );
 
 -- CONCRETE TABLES
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS public.fields_of_study (
     name VARCHAR(255) NOT NULL,
     faculty_id INTEGER REFERENCES faculties(id) NOT NULL,
     description VARCHAR(255) NOT NULL,
-    start_year SMALLINT NOT NULL
+    start_year INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.terms (
@@ -110,7 +110,6 @@ CREATE TABLE IF NOT EXISTS public.groups (
     id SERIAL PRIMARY KEY,
     course_id INTEGER REFERENCES courses(id) NOT NULL,
     college_term_id INTEGER REFERENCES college_terms(id) NOT NULL,
-    host_id INTEGER REFERENCES hosts(id) NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT,
     image TEXT CHECK (image ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$')
@@ -160,10 +159,8 @@ CREATE TABLE IF NOT EXISTS public.comment_entries (
 
 CREATE TABLE IF NOT EXISTS public.entry_files (
     id SERIAL PRIMARY KEY,
-    file_url VARCHAR(255),
-    uploaded_at TIMESTAMP,
     entry_id INTEGER REFERENCES entries(id)
-);
+) INHERITS (public.files);
 
 CREATE TABLE IF NOT EXISTS public.exercises (
     id SERIAL PRIMARY KEY,
@@ -182,10 +179,8 @@ CREATE TABLE IF NOT EXISTS public.solutions (
 
 CREATE TABLE IF NOT EXISTS public.solution_files (
     id SERIAL PRIMARY KEY,
-    file_url VARCHAR(255),
-    uploaded_at TIMESTAMP,
     solution_id INTEGER REFERENCES solutions(id)
-);
+) INHERITS (public.files);
 
 CREATE TABLE IF NOT EXISTS public.solution_comments (
     id SERIAL PRIMARY KEY,
@@ -222,17 +217,13 @@ CREATE TABLE IF NOT EXISTS public.attempts (
 CREATE TABLE IF NOT EXISTS public.open_questions (
     id SERIAL PRIMARY KEY,
     test_id INTEGER REFERENCES tests(id),
-    content TEXT,
-    points INTEGER
-);
+) INHERITS (public.question);
 
 CREATE TABLE IF NOT EXISTS public.closed_questions (
     id SERIAL PRIMARY KEY,
     test_id INTEGER REFERENCES tests(id),
-    content TEXT,
-    points INTEGER,
     type VARCHAR(255)
-);
+) INHERITS (public.question);
 
 CREATE TABLE IF NOT EXISTS public.choices (
     id SERIAL PRIMARY KEY,
@@ -243,7 +234,6 @@ CREATE TABLE IF NOT EXISTS public.choices (
 
 CREATE TABLE IF NOT EXISTS public.closed_answers (
     id SERIAL PRIMARY KEY,
-    is_correct BOOLEAN,
     submitted_at TIMESTAMP,
     closed_question_id INTEGER REFERENCES closed_questions(id),
     attempt_id INTEGER REFERENCES attempts(id)
