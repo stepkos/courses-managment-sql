@@ -1,3 +1,5 @@
+-- DROPS
+
 DROP TABLE IF EXISTS public.open_answers;
 DROP TABLE IF EXISTS public.closed_answer_choices;
 DROP TABLE IF EXISTS public.closed_answers;
@@ -27,15 +29,38 @@ DROP TABLE IF EXISTS public.faculty_administrators;
 DROP TABLE IF EXISTS public.faculties;
 DROP TABLE IF EXISTS public.administrators;
 
--- TODO sizes
+-- ABSTRACT TABLES
 
-CREATE TABLE IF NOT EXISTS public.administrators (
+CREATE TABLE IF NOT EXISTS public.users (
     id SERIAL PRIMARY KEY,
     first_name VARCHAR(255) NOT NULL,
     surname VARCHAR(255) NOT NULL,
+    email TEXT CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     password TEXT NOT NULL,
-    is_active BOOLEAN NOT NULL
+    is_active BOOLEAN
+) WITHOUT OIDS;
+
+CREATE TABLE IF NOT EXISTS public.answers (
+    id SERIAL PRIMARY KEY,
+    points INTEGER,
+    submitted_at TIMESTAMPTZ,
 );
+
+CREATE TABLE IF NOT EXISTS public.question (
+    id SERIAL PRIMARY KEY,
+    content TEXT,
+    points INTEGER,
+);
+
+CREATE TABLE IF NOT EXISTS public.files (
+    id SERIAL PRIMARY KEY,
+    fileUrl TEXT CHECK (fileUrl ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$')
+    uploaded_at TIMESTAMPTZ,
+);
+
+-- CONCRETE TABLES
+
+CREATE TABLE IF NOT EXISTS public.administrators INHERITS (public.users);
 
 CREATE TABLE IF NOT EXISTS public.faculties (
     id SERIAL PRIMARY KEY,
@@ -47,98 +72,86 @@ CREATE TABLE IF NOT EXISTS public.faculties (
 
 CREATE TABLE IF NOT EXISTS public.faculty_administrators (
     id SERIAL PRIMARY KEY,
-    faculty_id INTEGER REFERENCES faculties(id),
-    administrator_id INTEGER REFERENCES administrators(id)
+    faculty_id INTEGER REFERENCES faculties(id) NOT NULL,
+    administrator_id INTEGER REFERENCES administrators(id) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.fields_of_study (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    faculty_id INTEGER REFERENCES faculties(id),
-    description VARCHAR(255),
-    start_year SMALLINT
+    faculty_id INTEGER REFERENCES faculties(id) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    start_year SMALLINT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.terms (
     id SERIAL PRIMARY KEY,
-    field_of_study_id INTEGER REFERENCES fields_of_study(id),
-    order_number INTEGER
+    field_of_study_id INTEGER REFERENCES fields_of_study(id) NOT NULL,
+    order_number INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.courses (
     id SERIAL PRIMARY KEY,
-    term_id INTEGER REFERENCES terms(id),
-    title VARCHAR(255),
-    description TEXT
+    term_id INTEGER REFERENCES terms(id) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.college_terms (
     id SERIAL PRIMARY KEY,
-    start_date TIMESTAMP,
-    end_date TIMESTAMP
+    start_date TIMESTAMP NOT NULL,
+    end_date TIMESTAMP NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.hosts (
-    id SERIAL PRIMARY KEY,
-    first_name VARCHAR(255),
-    surname VARCHAR(255),
-    email VARCHAR(255),
-    password VARCHAR(255),
-    is_active BOOLEAN,
-    degree VARCHAR(255)
-);
+    degree VARCHAR(255),
+) INHERITS (public.users);
 
 CREATE TABLE IF NOT EXISTS public.groups (
     id SERIAL PRIMARY KEY,
-    course_id INTEGER REFERENCES courses(id),
-    college_term_id INTEGER REFERENCES college_terms(id),
-    host_id INTEGER REFERENCES hosts(id),
-    name VARCHAR(255),
+    course_id INTEGER REFERENCES courses(id) NOT NULL,
+    college_term_id INTEGER REFERENCES college_terms(id) NOT NULL,
+    host_id INTEGER REFERENCES hosts(id) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     description TEXT,
-    image VARCHAR(255)
+    image TEXT CHECK (image ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$')
 );
 
 CREATE TABLE IF NOT EXISTS public.students (
-    id SERIAL PRIMARY KEY,
-    first_name VARCHAR(255),
-    surname VARCHAR(255),
-    email VARCHAR(255),
-    password VARCHAR(255),
-    is_active BOOLEAN
-);
+) INHERITS (public.users);
 
 CREATE TABLE IF NOT EXISTS public.student_groups (
     id SERIAL PRIMARY KEY,
-    group_id INTEGER REFERENCES groups(id),
-    student_id INTEGER REFERENCES students(id)
+    group_id INTEGER REFERENCES groups(id) NOT NULL,
+    student_id INTEGER REFERENCES students(id) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.host_groups (
     id SERIAL PRIMARY KEY,
-    host_id INTEGER REFERENCES hosts(id),
-    group_id INTEGER REFERENCES groups(id)
+    host_id INTEGER REFERENCES hosts(id) NOT NULL,
+    group_id INTEGER REFERENCES groups(id) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.host_courses (
     id SERIAL PRIMARY KEY,
-    host_id INTEGER REFERENCES hosts(id),
-    course_id INTEGER REFERENCES courses(id),
-    is_course_admin BOOLEAN
+    host_id INTEGER REFERENCES hosts(id) NOT NULL,
+    course_id INTEGER REFERENCES courses(id) NOT NULL,
+    is_course_admin BOOLEAN NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.entries (
     id SERIAL PRIMARY KEY,
-    group_id INTEGER REFERENCES groups(id),
-    title VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    group_id INTEGER REFERENCES groups(id) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    content TEXT,
-    host_id INTEGER REFERENCES hosts(id)
+    content TEXT NOT NULL,
+    host_id INTEGER REFERENCES hosts(id) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.comment_entries (
     id SERIAL PRIMARY KEY,
-    commenter_id INTEGER,
+    commenter_id REFERENCES()
     commenter_type VARCHAR(255),
     content TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
