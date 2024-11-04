@@ -32,42 +32,40 @@ DROP TABLE IF EXISTS public.administrators;
 -- ABSTRACT TABLES
 
 CREATE TABLE IF NOT EXISTS public.users (
-    id SERIAL PRIMARY KEY,
-    first_name VARCHAR(255) NOT NULL,
-    surname VARCHAR(255) NOT NULL,
-    email TEXT CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+    firstName VARCHAR(50) NOT NULL,
+    surname VARCHAR(50) NOT NULL,
+    email TEXT CHECK (email ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$') UNIQUE,
     password TEXT NOT NULL,
-    is_active BOOLEAN
-) WITHOUT OIDS;
+    isActive BOOLEAN
+);
 
 CREATE TABLE IF NOT EXISTS public.answers (
-    id SERIAL PRIMARY KEY,
     points INTEGER,
-    submitted_at TIMESTAMPTZ,
+    submittedAt TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS public.question (
-    id SERIAL PRIMARY KEY,
     content TEXT,
-    points INTEGER,
+    points INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS public.files (
-    id SERIAL PRIMARY KEY,
-    fileUrl TEXT CHECK (fileUrl ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$')
-    uploaded_at TIMESTAMPTZ,
+    fileUrl TEXT CHECK (fileUrl ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$'),
+    uploadedAt TIMESTAMPTZ
 );
 
 -- CONCRETE TABLES
 
-CREATE TABLE IF NOT EXISTS public.administrators INHERITS (public.users);
+CREATE TABLE IF NOT EXISTS public.administrators (
+	id SERIAL PRIMARY KEY
+) INHERITS (public.users);
 
 CREATE TABLE IF NOT EXISTS public.faculties (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email TEXT CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-    phone TEXT CHECK (phone ~* '^\+?[0-9\s-]*$'),
-    website TEXT CHECK (website ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$')
+    name VARCHAR(50) NOT NULL,
+    email VARCHAR(50) CHECK (email ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'),
+    phone VARCHAR(20) CHECK (phone ~* '^\+?[0-9\s-]*$'),
+    website VARCHAR(2048) CHECK (website ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$')
 );
 
 CREATE TABLE IF NOT EXISTS public.faculty_administrators (
@@ -104,7 +102,8 @@ CREATE TABLE IF NOT EXISTS public.college_terms (
 );
 
 CREATE TABLE IF NOT EXISTS public.hosts (
-    degree VARCHAR(255),
+    id SERIAL PRIMARY KEY,
+    degree VARCHAR(255)
 ) INHERITS (public.users);
 
 CREATE TABLE IF NOT EXISTS public.groups (
@@ -118,6 +117,7 @@ CREATE TABLE IF NOT EXISTS public.groups (
 );
 
 CREATE TABLE IF NOT EXISTS public.students (
+	id SERIAL PRIMARY KEY
 ) INHERITS (public.users);
 
 CREATE TABLE IF NOT EXISTS public.student_groups (
@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS public.entries (
 
 CREATE TABLE IF NOT EXISTS public.comment_entries (
     id SERIAL PRIMARY KEY,
-    commenter_id REFERENCES()
+    commenter_id INTEGER,
     commenter_type VARCHAR(255),
     content TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
