@@ -1,5 +1,4 @@
 -- DROPS
-
 DROP TABLE IF EXISTS public.open_answers;
 DROP TABLE IF EXISTS public.closed_answer_choices;
 DROP TABLE IF EXISTS public.closed_answers;
@@ -28,6 +27,10 @@ DROP TABLE IF EXISTS public.fields_of_study;
 DROP TABLE IF EXISTS public.faculty_administrators;
 DROP TABLE IF EXISTS public.faculties;
 DROP TABLE IF EXISTS public.administrators;
+DROP TABLE IF EXISTS public.users;
+DROP TABLE IF EXISTS public.answers;
+DROP TABLE IF EXISTS public.questions;
+DROP TABLE IF EXISTS public.files;
 
 -- ABSTRACT TABLES
 
@@ -41,17 +44,17 @@ CREATE TABLE IF NOT EXISTS public.users (
 
 CREATE TABLE IF NOT EXISTS public.answers (
     points INTEGER,
-    submitted_at TIMESTAMPTZ
+    submitted_at NOT NULL TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS public.question (
-    content TEXT,
-    points INTEGER
+CREATE TABLE IF NOT EXISTS public.questions (
+    content NOT NULL TEXT,
+    points NOT NULL INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS public.files (
-    file_url TEXT CHECK (file_url ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$'),
-    uploaded_at TIMESTAMPTZ
+    file_url NOT NULL TEXT CHECK (file_url ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$'),
+    uploaded_at NOT NULL TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- CONCRETE TABLES
@@ -62,7 +65,7 @@ CREATE TABLE IF NOT EXISTS public.administrators (
 
 CREATE TABLE IF NOT EXISTS public.faculties (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
+    name NOT NULL VARCHAR(50),
     email VARCHAR(50) CHECK (email ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'),
     phone VARCHAR(20) CHECK (phone ~* '^\+?[0-9\s-]*$'),
     website VARCHAR(2048) CHECK (website ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$')
@@ -70,29 +73,35 @@ CREATE TABLE IF NOT EXISTS public.faculties (
 
 CREATE TABLE IF NOT EXISTS public.faculty_administrators (
     id SERIAL PRIMARY KEY,
-    faculty_id INTEGER REFERENCES faculties(id) NOT NULL,
-    administrator_id INTEGER REFERENCES administrators(id) NOT NULL
+    faculty_id NOT NULL INTEGER REFERENCES faculties(id) ON DELETE CASCADE,
+    administrator_id NOT NULL INTEGER REFERENCES administrators(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS public.fields_of_study (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    faculty_id INTEGER REFERENCES faculties(id) NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    start_year INTEGER NOT NULL
+    name NOT NULL VARCHAR(255),
+    faculty_id NOT NULL INTEGER REFERENCES faculties(id),
+    description NOT NULL TEXT,
+    start_year NOT NULL INTEGER,
+    created_by INTEGER REFERENCES administrators(id) ON DELETE SET NULL,
+    created_at NOT NULL TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public.terms (
     id SERIAL PRIMARY KEY,
-    field_of_study_id INTEGER REFERENCES fields_of_study(id) NOT NULL,
-    order_number INTEGER NOT NULL
+    field_of_study_id NOT NULL INTEGER REFERENCES fields_of_study(id),
+    term_number NOT NULL INTEGER,
+    created_by INTEGER REFERENCES administrators(id) ON DELETE SET NULL,
+    created_at NOT NULL TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public.courses (
     id SERIAL PRIMARY KEY,
-    term_id INTEGER REFERENCES terms(id) NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL
+    term_id NOT NULL INTEGER REFERENCES terms(id),
+    title NOT NULL VARCHAR(255),
+    description TEXT,
+    created_by INTEGER REFERENCES administrators(id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public.college_terms (
@@ -112,8 +121,12 @@ CREATE TABLE IF NOT EXISTS public.groups (
     college_term_id INTEGER REFERENCES college_terms(id) NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    image TEXT CHECK (image ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$')
+    image TEXT CHECK (image ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$') OR IMAGE IS NULL,
+    created_by INTEGER REFERENCES hosts(id) ON DELETE SET NULL,
+    created_at NOT NULL TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- koniec na dzis
 
 CREATE TABLE IF NOT EXISTS public.students (
 	id SERIAL PRIMARY KEY
@@ -122,30 +135,34 @@ CREATE TABLE IF NOT EXISTS public.students (
 CREATE TABLE IF NOT EXISTS public.student_groups (
     id SERIAL PRIMARY KEY,
     group_id INTEGER REFERENCES groups(id) NOT NULL,
-    student_id INTEGER REFERENCES students(id) NOT NULL
+    student_id INTEGER REFERENCES students(id) NOT NULL,
+    created_by INTEGER NOT NULL REFERENCES hosts(id) NOT NULL
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public.host_groups (
     id SERIAL PRIMARY KEY,
-    host_id INTEGER REFERENCES hosts(id) NOT NULL,
+    host_id INTEGER NOT NULL REFERENCES hosts(id) ON DELETE SET NULL,
     group_id INTEGER REFERENCES groups(id) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.host_courses (
     id SERIAL PRIMARY KEY,
-    host_id INTEGER REFERENCES hosts(id) NOT NULL,
+    host_id INTEGER NOT NULL  REFERENCES hosts(id) ON DELETE CASCADE,
     course_id INTEGER REFERENCES courses(id) NOT NULL,
     is_course_admin BOOLEAN NOT NULL
+    created_by INTEGER NOT NULL REFERENCES hosts(id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public.entries (
     id SERIAL PRIMARY KEY,
     group_id INTEGER REFERENCES groups(id) NOT NULL,
     title VARCHAR(255) NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    created_at NOT NULL TIMESTAMPTZ DEFAULT NOW(),
+    updated_at NOT NULL TIMESTAMPTZ DEFAULT NOW()
     content TEXT NOT NULL,
-    host_id INTEGER REFERENCES hosts(id) NOT NULL
+    host_id INTEGER NOT NULL REFERENCES hosts(id) ON DELETE NULL 
 );
 
 CREATE TABLE IF NOT EXISTS public.comment_entries (
@@ -153,7 +170,7 @@ CREATE TABLE IF NOT EXISTS public.comment_entries (
     commenter_id INTEGER,
     commenter_type VARCHAR(255),
     content TEXT,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    created_at NOT NULL TIMESTAMPTZ DEFAULT NOW(),
     entry_id INTEGER REFERENCES entries(id)
 );
 
@@ -201,8 +218,8 @@ CREATE TABLE IF NOT EXISTS public.tests (
     max_seconds_for_open INTEGER,
     max_seconds_for_closed INTEGER,
     duration_in_minutes INTEGER,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    created_at NOT NULL TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at NOT NULL TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS public.attempts (
@@ -210,13 +227,13 @@ CREATE TABLE IF NOT EXISTS public.attempts (
     student_id INTEGER REFERENCES students(id),
     test_id INTEGER REFERENCES tests(id),
     score INTEGER,
-    attempt_at TIMESTAMPTZ,
-    submitted_at TIMESTAMPTZ
+    attempt_at NOT NULL TIMESTAMPTZ,
+    submitted_at NOT NULL TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS public.open_questions (
     id SERIAL PRIMARY KEY,
-    test_id INTEGER REFERENCES tests(id),
+    test_id INTEGER REFERENCES tests(id)
 ) INHERITS (public.question);
 
 CREATE TABLE IF NOT EXISTS public.closed_questions (
@@ -234,7 +251,7 @@ CREATE TABLE IF NOT EXISTS public.choices (
 
 CREATE TABLE IF NOT EXISTS public.closed_answers (
     id SERIAL PRIMARY KEY,
-    submitted_at TIMESTAMPTZ,
+    submitted_at NOT NULL TIMESTAMPTZ,
     closed_question_id INTEGER REFERENCES closed_questions(id),
     attempt_id INTEGER REFERENCES attempts(id)
 );
