@@ -2,13 +2,13 @@ INSERT INTO public.administrators (first_name, surname, email, password, is_acti
 VALUES ('Admin', 'User', 'admin.user@example.com', 'adminpassword', TRUE);
 
 INSERT INTO public.faculties (name, email, phone, website)
-VALUES ('Faculty of Science', 'science@example.com', '+1234567890', 'http://facultywebsite.com');
+VALUES ('Faculty of Science', 'science@example.com', '+1 234567890', 'http://facultywebsite.com');
 
 INSERT INTO public.faculty_administrators (faculty_id, administrator_id)
 VALUES (1, 1);
 
 INSERT INTO public.fields_of_study (name, faculty_id, description, start_year)
-VALUES ('Computer Science', 1, 'Study of computers and computational systems.', 2021);
+VALUES ('Computer Science', 1, DEFAULT, 2021);
 
 INSERT INTO public.terms (field_of_study_id, term_number)
 VALUES (1, 1);
@@ -19,8 +19,10 @@ VALUES (1, 'Introduction to Programming', 'Basic programming concepts and techni
 INSERT INTO public.college_terms (start_date, end_date)
 VALUES (NOW(), NOW() + INTERVAL '4 months');
 
+INSERT INTO public.degrees (id, name) VALUES (1, 'PhD');
+
 INSERT INTO public.hosts (first_name, surname, email, password, is_active, degree)
-VALUES ('Host', 'User', 'host.user@example.com', 'hostpassword', TRUE, 'PhD');
+VALUES ('Host', 'User', 'host.user@example.com', 'hostpassword', TRUE, 1);
 
 INSERT INTO public.groups (course_id, college_term_id, name, description, image, created_by, created_at)
 VALUES (1, 1, 'Group A', 'Description of Group A', 'http://example.com/image.jpg', 1, NOW());
@@ -50,7 +52,7 @@ INSERT INTO public.exercises (entry_id, due_date)
 VALUES (1, NOW() + INTERVAL '7 days');
 
 INSERT INTO public.solutions (exercise_id, student_id, grade, submitted_at, text_answer)
-VALUES (1, 1, 90, NOW(), 'Solution text');
+VALUES (1, 1, 9, NOW(), 'Solution text');
 
 INSERT INTO public.solution_files (solution_id, file_url, uploaded_at)
 VALUES (1, 'http://example.com/solutionfile.pdf', NOW());
@@ -67,8 +69,8 @@ VALUES (1, 1, 85, NOW(), NOW());
 INSERT INTO public.open_questions (test_id, content, points)
 VALUES (1, 'Describe the main components of a computer.', 10);
 
-INSERT INTO public.closed_questions (test_id, type, content, points)
-VALUES (1, 'multiple-choice', 'What is the capital of France?', 5);
+INSERT INTO public.closed_questions (test_id, is_multiple, content, points)
+VALUES (1, TRUE, 'What is the capital of France?', 5);
 
 INSERT INTO public.choices (closed_question_id, content, is_correct)
 VALUES (1, 'Paris', TRUE);
