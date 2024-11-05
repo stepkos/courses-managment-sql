@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS public.fields_of_study (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     faculty_id INTEGER NOT NULL REFERENCES faculties(id),
-    description TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
     start_year INTEGER NOT NULL,
     created_by INTEGER REFERENCES administrators(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS public.courses (
     id SERIAL PRIMARY KEY,
     term_id INTEGER NOT NULL REFERENCES terms(id),
     title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
     created_by INTEGER REFERENCES administrators(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS public.groups (
     course_id INTEGER NOT NULL REFERENCES courses(id),
     college_term_id INTEGER NOT NULL REFERENCES college_terms(id),
     name VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
     image TEXT CHECK (image ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$' OR image IS NULL),
     created_by INTEGER REFERENCES hosts(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -204,7 +204,7 @@ CREATE TABLE IF NOT EXISTS public.solutions (
     student_id INTEGER REFERENCES students(id) ON DELETE SET NULL,
     grade NUMERIC(4, 2) NOT NULL CHECK (grade >= 0.00 AND grade <= 10.00),
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    text_answer TEXT NOT NULL
+    text_answer TEXT NOT NULL DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS public.solution_files (
@@ -225,7 +225,7 @@ CREATE TABLE IF NOT EXISTS public.tests (
     id SERIAL PRIMARY KEY,
     entry_id INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
     available_from_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     available_to_date TIMESTAMPTZ,
     max_seconds_for_open INTEGER,
