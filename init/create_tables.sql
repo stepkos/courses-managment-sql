@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS public.courses (
     id SERIAL PRIMARY KEY,
     term_id INTEGER NOT NULL REFERENCES terms(id),
     title VARCHAR(255) NOT NULL,
-    description TEXT,
+    description TEXT NOT NULL,
     created_by INTEGER REFERENCES administrators(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS public.college_terms (
 
 CREATE TABLE IF NOT EXISTS public.degrees (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255)
+    name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.hosts (
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS public.groups (
     course_id INTEGER NOT NULL REFERENCES courses(id),
     college_term_id INTEGER NOT NULL REFERENCES college_terms(id),
     name VARCHAR(255) NOT NULL,
-    description TEXT,
+    description TEXT NOT NULL,
     image TEXT CHECK (image ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$' OR image IS NULL),
     created_by INTEGER REFERENCES hosts(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -182,7 +182,7 @@ CREATE TABLE IF NOT EXISTS public.comment_of_entries (
     id SERIAL PRIMARY KEY,
     commenter_id INTEGER,
     commenter_type INTEGER,
-    content TEXT,
+    content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     entry_id INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE
 );
@@ -204,7 +204,7 @@ CREATE TABLE IF NOT EXISTS public.solutions (
     student_id INTEGER REFERENCES students(id) ON DELETE SET NULL,
     grade NUMERIC(4, 2) NOT NULL CHECK (grade >= 0.00 AND grade <= 10.00),
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    text_answer TEXT
+    text_answer TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.solution_files (
@@ -217,15 +217,15 @@ CREATE TABLE IF NOT EXISTS public.solution_comments (
     commenter_id INTEGER,
     commenter_type INTEGER,
     solution_id INTEGER NOT NULL REFERENCES solutions(id) ON DELETE CASCADE,
-    content TEXT,
+    content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public.tests (
     id SERIAL PRIMARY KEY,
     entry_id INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE,
-    title VARCHAR(255),
-    description TEXT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
     available_from_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     available_to_date TIMESTAMPTZ,
     max_seconds_for_open INTEGER,
@@ -258,7 +258,7 @@ CREATE TABLE IF NOT EXISTS public.closed_questions (
 CREATE TABLE IF NOT EXISTS public.choices (
     id SERIAL PRIMARY KEY,
     closed_question_id INTEGER NOT NULL REFERENCES closed_questions(id) ON DELETE CASCADE,
-    content TEXT,
+    content TEXT NOT NULL,
     is_correct BOOLEAN
 );
 
@@ -279,7 +279,7 @@ CREATE TABLE IF NOT EXISTS public.closed_answer_choices (
 CREATE TABLE IF NOT EXISTS public.open_answers (
     id SERIAL PRIMARY KEY,
     open_question_id INTEGER NOT NULL REFERENCES open_questions(id) ON DELETE CASCADE,
-    content TEXT,
+    content TEXT NOT NULL,
     attempt_id INTEGER NOT NULL REFERENCES attempts(id) ON DELETE CASCADE,
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
