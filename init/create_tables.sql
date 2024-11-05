@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS public.solutions (
     id SERIAL PRIMARY KEY,
     exercise_id INTEGER NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
     student_id INTEGER REFERENCES students(id) ON DELETE SET NULL,
-    grade INTEGER,
+    grade NUMERIC(3, 2) NOT NULL CHECK (grade >= 0.00 AND grade <= 100.00),
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     text_answer TEXT
 );
@@ -227,7 +227,7 @@ CREATE TABLE IF NOT EXISTS public.tests (
     available_to_date TIMESTAMPTZ,
     max_seconds_for_open INTEGER,
     max_seconds_for_closed INTEGER,
-    duration_in_minutes INTEGER,
+    duration_in_minutes INTEGER CHECK (duration_in_minutes >= 0),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -236,7 +236,7 @@ CREATE TABLE IF NOT EXISTS public.attempts (
     id SERIAL PRIMARY KEY,
     student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
     test_id INTEGER NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
-    score INTEGER,
+    score NUMERIC(3,2) CHECK (score >= 0),
     started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     submitted_at TIMESTAMPTZ
 );
@@ -249,7 +249,7 @@ CREATE TABLE IF NOT EXISTS public.open_questions (
 CREATE TABLE IF NOT EXISTS public.closed_questions (
     id SERIAL PRIMARY KEY,
     test_id INTEGER NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
-    type VARCHAR(255) -- czy nie chcemy INTEGER i enum w aplikacji
+    is_multiple BOOLEAN NOT NULL 
 ) INHERITS (public.question);
 
 CREATE TABLE IF NOT EXISTS public.choices (
