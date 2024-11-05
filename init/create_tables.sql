@@ -20,6 +20,7 @@ DROP TABLE IF EXISTS public.student_groups;
 DROP TABLE IF EXISTS public.students;
 DROP TABLE IF EXISTS public.groups;
 DROP TABLE IF EXISTS public.hosts;
+DROP TABLE IF EXISTS public.degrees;
 DROP TABLE IF EXISTS public.college_terms;
 DROP TABLE IF EXISTS public.courses;
 DROP TABLE IF EXISTS public.terms;
@@ -37,9 +38,9 @@ DROP TABLE IF EXISTS public.files;
 CREATE TABLE IF NOT EXISTS public.users (
     first_name VARCHAR(50) NOT NULL,
     surname VARCHAR(50) NOT NULL,
-    email TEXT CHECK (email ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$') UNIQUE,
+    email TEXT CHECK (email ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'),
     password TEXT NOT NULL,
-    is_active BOOLEAN
+    is_active BOOLEAN DEFAULT TRUE
 );
 
 CREATE TABLE IF NOT EXISTS public.answers (
@@ -63,11 +64,14 @@ CREATE TABLE IF NOT EXISTS public.administrators (
 	id SERIAL PRIMARY KEY
 ) INHERITS (public.users);
 
+ALTER TABLE public.administrators
+ADD CONSTRAINT unique_email_in_admin UNIQUE (email);
+
 CREATE TABLE IF NOT EXISTS public.faculties (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
-    email VARCHAR(50) CHECK (email ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'),
-    phone VARCHAR(20) CHECK (phone ~* '^\+?[0-9\s-]*$'),
+    email VARCHAR(50) CHECK (email ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$') UNIQUE,
+    phone VARCHAR(20) CHECK (phone ~* '^(\+\d+ )?[\d\s-]*$'),
     website VARCHAR(2048) CHECK (website ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$')
 );
 
@@ -110,9 +114,14 @@ CREATE TABLE IF NOT EXISTS public.college_terms (
     end_date TIMESTAMPTZ NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS public.degrees (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255)
+);
+
 CREATE TABLE IF NOT EXISTS public.hosts (
     id SERIAL PRIMARY KEY,
-    degree VARCHAR(255)
+    degree INTEGER REFERENCES degrees(id) ON DELETE SET NULL
 ) INHERITS (public.users);
 
 CREATE TABLE IF NOT EXISTS public.groups (
@@ -126,11 +135,12 @@ CREATE TABLE IF NOT EXISTS public.groups (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- koniec na dzis 13:00
-
 CREATE TABLE IF NOT EXISTS public.students (
 	id SERIAL PRIMARY KEY
 ) INHERITS (public.users);
+
+ALTER TABLE public.student
+ADD CONSTRAINT unique_email_in_students UNIQUE (email);
 
 CREATE TABLE IF NOT EXISTS public.student_groups (
     id SERIAL PRIMARY KEY,
@@ -167,8 +177,8 @@ CREATE TABLE IF NOT EXISTS public.entries (
 
 CREATE TABLE IF NOT EXISTS public.comment_of_entries (
     id SERIAL PRIMARY KEY,
-    commenter_id INTEGER, -- null moze byc przy usunieciu commenter'a
-    commenter_type INTEGER, -- na poziomie aplikacji Enum
+    commenter_id INTEGER,
+    commenter_type INTEGER,
     content TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     entry_id INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE
@@ -215,7 +225,7 @@ CREATE TABLE IF NOT EXISTS public.tests (
     description TEXT,
     available_from_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     available_to_date TIMESTAMPTZ,
-    max_seconds_for_open INTEGER, -- if null then is infinite
+    max_seconds_for_open INTEGER,
     max_seconds_for_closed INTEGER,
     duration_in_minutes INTEGER,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -269,3 +279,6 @@ CREATE TABLE IF NOT EXISTS public.open_answers (
     attempt_id INTEGER NOT NULL REFERENCES attempts(id) ON DELETE CASCADE,
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX idx_users_email ON public.users(email);
+CREATE INDEX idx_courses_title ON public.courses(title);
