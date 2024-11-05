@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS public.users (
     surname VARCHAR(50) NOT NULL,
     email TEXT CHECK (email ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'),
     password TEXT NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE IF NOT EXISTS public.answers (
@@ -70,7 +70,7 @@ ADD CONSTRAINT unique_email_in_admin UNIQUE (email);
 CREATE TABLE IF NOT EXISTS public.faculties (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
-    email VARCHAR(50) CHECK (email ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$') UNIQUE,
+    email VARCHAR(50) CHECK (email ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'),
     phone VARCHAR(20) CHECK (phone ~* '^(\+\d+ )?[\d\s-]*$'),
     website VARCHAR(2048) CHECK (website ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$')
 );
@@ -202,7 +202,7 @@ CREATE TABLE IF NOT EXISTS public.solutions (
     id SERIAL PRIMARY KEY,
     exercise_id INTEGER NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
     student_id INTEGER REFERENCES students(id) ON DELETE SET NULL,
-    grade NUMERIC(3, 2) NOT NULL CHECK (grade >= 0.00 AND grade <= 100.00),
+    grade NUMERIC(4, 2) NOT NULL CHECK (grade >= 0.00 AND grade <= 10.00),
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     text_answer TEXT
 );
@@ -239,7 +239,7 @@ CREATE TABLE IF NOT EXISTS public.attempts (
     id SERIAL PRIMARY KEY,
     student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
     test_id INTEGER NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
-    score NUMERIC(3,2) CHECK (score >= 0),
+    score NUMERIC(5,2) CHECK (score >= 0.00 AND score <= 100.00),
     started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     submitted_at TIMESTAMPTZ
 );
@@ -283,6 +283,3 @@ CREATE TABLE IF NOT EXISTS public.open_answers (
     attempt_id INTEGER NOT NULL REFERENCES attempts(id) ON DELETE CASCADE,
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-
-CREATE INDEX idx_users_email ON public.users(email);
-CREATE INDEX idx_courses_title ON public.courses(title);
