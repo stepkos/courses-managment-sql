@@ -78,7 +78,8 @@ CREATE TABLE IF NOT EXISTS public.faculties (
 CREATE TABLE IF NOT EXISTS public.faculty_administrators (
     id SERIAL PRIMARY KEY,
     faculty_id INTEGER NOT NULL REFERENCES faculties(id) ON DELETE CASCADE,
-    administrator_id INTEGER NOT NULL REFERENCES administrators(id) ON DELETE CASCADE
+    administrator_id INTEGER NOT NULL REFERENCES administrators(id) ON DELETE CASCADE,
+    CONSTRAINT unique_faculty_administrator UNIQUE (faculty_id, administrator_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.fields_of_study (
@@ -139,7 +140,7 @@ CREATE TABLE IF NOT EXISTS public.students (
 	id SERIAL PRIMARY KEY
 ) INHERITS (public.users);
 
-ALTER TABLE public.student
+ALTER TABLE public.students
 ADD CONSTRAINT unique_email_in_students UNIQUE (email);
 
 CREATE TABLE IF NOT EXISTS public.student_groups (
@@ -147,13 +148,15 @@ CREATE TABLE IF NOT EXISTS public.student_groups (
     group_id INTEGER NOT NULL REFERENCES groups(id),
     student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
     created_by INTEGER NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT unique_student_group UNIQUE (student_id, group_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.host_groups (
     id SERIAL PRIMARY KEY,
     host_id INTEGER NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
-    group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE
+    group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+    CONSTRAINT unique_host_group UNIQUE (host_id, group_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.host_courses (
@@ -269,7 +272,8 @@ CREATE TABLE IF NOT EXISTS public.closed_answers (
 CREATE TABLE IF NOT EXISTS public.closed_answer_choices (
     id SERIAL PRIMARY KEY,
     closed_answer_id INTEGER NOT NULL REFERENCES closed_answers(id) ON DELETE CASCADE,
-    choice_id INTEGER REFERENCES choices(id) ON DELETE CASCADE
+    choice_id INTEGER REFERENCES choices(id) ON DELETE CASCADE,
+    CONSTRAINT unique_closed_answer_choice UNIQUE (closed_answer_id, choice_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.open_answers (
