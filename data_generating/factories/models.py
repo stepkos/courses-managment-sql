@@ -2,16 +2,20 @@ import random
 from dataclasses import dataclass, field
 
 from data_generating.factories import fake
-from data_generating.factories.abstact import BaseFactory, UserFactory
+from data_generating.factories.abstact import BaseModel, User
 
 
 @dataclass(kw_only=True)
-class StudentFactory(UserFactory):
+class Student(User):
+    _TABLE_NAME: str = "students"
+
     index: str = field(default_factory=lambda: fake.random_int(min=100000, max=999999))
 
 
 @dataclass(kw_only=True)
-class HostFactory(UserFactory):
+class Host(User):
+    _TABLE_NAME: str = "hosts"
+
     degree: str = field(
         default_factory=lambda: random.choices(
             ["mgr", "dr", "prof"], weights=[75, 20, 5]
@@ -20,7 +24,9 @@ class HostFactory(UserFactory):
 
 
 @dataclass(kw_only=True)
-class EntryFactory(BaseFactory):
+class Entry(BaseModel):
+    _TABLE_NAME: str = "entries"
+
     group_id: str
     host_id: str
     title: str = field(default_factory=fake.word)
@@ -30,11 +36,11 @@ class EntryFactory(BaseFactory):
 
 
 if __name__ == "__main__":
-    student = StudentFactory()
+    student = Student()
     print(student)
 
-    host = HostFactory()
+    host = Host()
     print(host)
 
-    entry = EntryFactory(group_id="abcd", host_id=host.id)
+    entry = Entry(group_id="abcd", host_id=host.id)
     print(entry)

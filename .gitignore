@@ -2,5 +2,7 @@
 /vscode
 
 .DS_Store
-__pycache__
+*__pycache__/
 *.pyc
+
+data_generating/.env

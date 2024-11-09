@@ -7,12 +7,13 @@ from data_generating.factories import fake
 
 
 @dataclass(kw_only=True)
-class BaseFactory(ABC):
+class BaseModel(ABC):
+    _TABLE_NAME: str
     id: str = field(default_factory=uuid.uuid4)
 
 
 @dataclass(kw_only=True)
-class UserFactory(BaseFactory, ABC):
+class User(BaseModel, ABC):
     first_name: str = field(default_factory=fake.first_name)
     surname: str = field(default_factory=fake.last_name)
     email: str = field(default_factory=fake.email)
