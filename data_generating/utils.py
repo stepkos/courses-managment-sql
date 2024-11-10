@@ -5,7 +5,7 @@ from pypika import Query, Table
 from pypika.terms import ValueWrapper
 
 from data_generating.factories.abstact import BaseModel
-from data_generating.factories.models import Student, Host
+from data_generating.factories.models import Student
 
 
 def generate_insert_query(instances: Sequence[BaseModel]) -> str:
