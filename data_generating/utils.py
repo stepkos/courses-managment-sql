@@ -1,3 +1,4 @@
+from dataclasses import fields
 from typing import Sequence
 
 from pypika import Query, Table
@@ -17,7 +18,7 @@ def generate_insert_query(instances: Sequence[BaseModel]) -> str:
     query = Query.into(table).columns(
         *[
             table[f.name]
-            for f in first_instance.__dataclass_fields__.values()
+            for f in fields(first_instance)
             if not f.name.startswith('_')
         ]
     )
@@ -26,7 +27,7 @@ def generate_insert_query(instances: Sequence[BaseModel]) -> str:
         query = query.insert(
             *[
                 ValueWrapper(getattr(instance, f.name))
-                for f in instance.__dataclass_fields__.values()
+                for f in fields(instance)
                 if not f.name.startswith('_')
             ]
         )
