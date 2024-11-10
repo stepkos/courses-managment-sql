@@ -1,5 +1,5 @@
-from typing import Callable, TypeVar
 import random
+from typing import Callable, TypeVar
 
 T = TypeVar("T")
 

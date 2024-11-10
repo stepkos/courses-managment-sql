@@ -1,10 +1,10 @@
 import random
+from collections import OrderedDict
 from dataclasses import dataclass, field
 
 from data_generating.factories import fake
 from data_generating.factories.abstact import *
 from data_generating.factories.utils import nullable_field
-from collections import OrderedDict
 
 
 @dataclass(kw_only=True)
