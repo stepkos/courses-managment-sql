@@ -5,7 +5,7 @@ from dotenv import dotenv_values
 @contextmanager
 def psql():
     values = dotenv_values()
-    host = values.get("POSGRES_HOST")
+    host = values.get("POSTGRES_HOST")
     port = values.get("POSTGRES_PORT")
     password = values.get("POSTGRES_PASSWORD")
     dbname = values.get("POSTGRES_DBNAME")
