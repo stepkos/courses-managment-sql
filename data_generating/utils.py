@@ -9,8 +9,7 @@ from data_generating.factories.models import Student
 
 
 def generate_insert_query(instances: Sequence[BaseModel]) -> str:
-    first_instance = instances[0]
-    model_type = type(first_instance)
+    first_instance, model_type = instances[0], type(instances[0])
     if any(type(instance) is not model_type for instance in instances):
         raise ValueError("All instances must be of the same type.")
 
