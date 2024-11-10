@@ -61,14 +61,14 @@ CREATE TABLE IF NOT EXISTS public.files (
 -- CONCRETE TABLES
 
 CREATE TABLE IF NOT EXISTS public.administrators (
-	id SERIAL PRIMARY KEY
+	id UUID PRIMARY KEY DEFAULT gen_random_uuid()
 ) INHERITS (public.users);
 
 ALTER TABLE public.administrators
 ADD CONSTRAINT unique_email_in_admin UNIQUE (email);
 
 CREATE TABLE IF NOT EXISTS public.faculties (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(50) NOT NULL,
     email VARCHAR(50) CHECK (email ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'),
     phone VARCHAR(20) CHECK (phone ~* '^(\+\d+ )?[\d\s-]*$'),
@@ -76,16 +76,16 @@ CREATE TABLE IF NOT EXISTS public.faculties (
 );
 
 CREATE TABLE IF NOT EXISTS public.faculty_administrators (
-    id SERIAL PRIMARY KEY,
-    faculty_id INTEGER NOT NULL REFERENCES faculties(id) ON DELETE CASCADE,
-    administrator_id INTEGER NOT NULL REFERENCES administrators(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    faculty_id UUID NOT NULL REFERENCES faculties(id) ON DELETE CASCADE,
+    administrator_id UUID NOT NULL REFERENCES administrators(id) ON DELETE CASCADE,
     CONSTRAINT unique_faculty_administrator UNIQUE (faculty_id, administrator_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.fields_of_study (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
-    faculty_id INTEGER NOT NULL REFERENCES faculties(id),
+    faculty_id UUID NOT NULL REFERENCES faculties(id),
     description TEXT NOT NULL DEFAULT '',
     start_year INTEGER NOT NULL,
     created_by INTEGER REFERENCES administrators(id) ON DELETE SET NULL,
@@ -93,16 +93,16 @@ CREATE TABLE IF NOT EXISTS public.fields_of_study (
 );
 
 CREATE TABLE IF NOT EXISTS public.terms (
-    id SERIAL PRIMARY KEY,
-    field_of_study_id INTEGER NOT NULL REFERENCES fields_of_study(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    field_of_study_id UUID NOT NULL REFERENCES fields_of_study(id),
     term_number INTEGER NOT NULL,
     created_by INTEGER REFERENCES administrators(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public.courses (
-    id SERIAL PRIMARY KEY,
-    term_id INTEGER NOT NULL REFERENCES terms(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    term_id UUID NOT NULL REFERENCES terms(id),
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL DEFAULT '',
     created_by INTEGER REFERENCES administrators(id),
@@ -110,25 +110,25 @@ CREATE TABLE IF NOT EXISTS public.courses (
 );
 
 CREATE TABLE IF NOT EXISTS public.college_terms (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     start_date TIMESTAMPTZ NOT NULL,
     end_date TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.degrees (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.hosts (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     degree INTEGER REFERENCES degrees(id) ON DELETE SET NULL
 ) INHERITS (public.users);
 
 CREATE TABLE IF NOT EXISTS public.groups (
-    id SERIAL PRIMARY KEY,
-    course_id INTEGER NOT NULL REFERENCES courses(id),
-    college_term_id INTEGER NOT NULL REFERENCES college_terms(id),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    course_id UUID NOT NULL REFERENCES courses(id),
+    college_term_id UUID NOT NULL REFERENCES college_terms(id),
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL DEFAULT '',
     image TEXT CHECK (image ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$' OR image IS NULL),
@@ -137,93 +137,93 @@ CREATE TABLE IF NOT EXISTS public.groups (
 );
 
 CREATE TABLE IF NOT EXISTS public.students (
-	id SERIAL PRIMARY KEY
+	id UUID PRIMARY KEY DEFAULT gen_random_uuid()
 ) INHERITS (public.users);
 
 ALTER TABLE public.students
 ADD CONSTRAINT unique_email_in_students UNIQUE (email);
 
 CREATE TABLE IF NOT EXISTS public.student_groups (
-    id SERIAL PRIMARY KEY,
-    group_id INTEGER NOT NULL REFERENCES groups(id),
-    student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    group_id UUID NOT NULL REFERENCES groups(id),
+    student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
     created_by INTEGER NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT unique_student_group UNIQUE (student_id, group_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.host_groups (
-    id SERIAL PRIMARY KEY,
-    host_id INTEGER NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
-    group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    host_id UUID NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
+    group_id UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
     CONSTRAINT unique_host_group UNIQUE (host_id, group_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.host_courses (
-    id SERIAL PRIMARY KEY,
-    host_id INTEGER NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
-    course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    host_id UUID NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
+    course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
     is_course_admin BOOLEAN NOT NULL,
     created_by INTEGER NOT NULL REFERENCES hosts(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public.entries (
-    id SERIAL PRIMARY KEY,
-    group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    group_id UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     content TEXT NOT NULL,
-    host_id INTEGER REFERENCES hosts(id) ON DELETE SET NULL
+    host_id UUID REFERENCES hosts(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.comment_of_entries (
-    id SERIAL PRIMARY KEY,
-    commenter_id INTEGER,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    commenter_id UUID,
     commenter_type INTEGER,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    entry_id INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE
+    entry_id UUID NOT NULL REFERENCES entries(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS public.entry_files (
-    id SERIAL PRIMARY KEY,
-    entry_id INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    entry_id UUID NOT NULL REFERENCES entries(id) ON DELETE CASCADE
 ) INHERITS (public.files);
 
 CREATE TABLE IF NOT EXISTS public.exercises (
-    id SERIAL PRIMARY KEY,
-    entry_id INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    entry_id UUID NOT NULL REFERENCES entries(id) ON DELETE CASCADE,
     due_date TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS public.solutions (
-    id SERIAL PRIMARY KEY,
-    exercise_id INTEGER NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
-    student_id INTEGER REFERENCES students(id) ON DELETE SET NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    exercise_id UUID NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+    student_id UUID REFERENCES students(id) ON DELETE SET NULL,
     grade NUMERIC(4, 2) NOT NULL CHECK (grade >= 0.00 AND grade <= 10.00),
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     text_answer TEXT NOT NULL DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS public.solution_files (
-    id SERIAL PRIMARY KEY,
-    solution_id INTEGER NOT NULL REFERENCES solutions(id) ON DELETE CASCADE
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE CASCADE
 ) INHERITS (public.files);
 
 CREATE TABLE IF NOT EXISTS public.solution_comments (
-    id SERIAL PRIMARY KEY,
-    commenter_id INTEGER,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    commenter_id UUID,
     commenter_type INTEGER,
-    solution_id INTEGER NOT NULL REFERENCES solutions(id) ON DELETE CASCADE,
+    solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public.tests (
-    id SERIAL PRIMARY KEY,
-    entry_id INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    entry_id UUID NOT NULL REFERENCES entries(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL DEFAULT '',
     available_from_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -236,50 +236,50 @@ CREATE TABLE IF NOT EXISTS public.tests (
 );
 
 CREATE TABLE IF NOT EXISTS public.attempts (
-    id SERIAL PRIMARY KEY,
-    student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
-    test_id INTEGER NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    test_id UUID NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
     score NUMERIC(5,2) CHECK (score >= 0.00 AND score <= 100.00 OR score IS NULL),
     started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     submitted_at TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS public.open_questions (
-    id SERIAL PRIMARY KEY,
-    test_id INTEGER NOT NULL REFERENCES tests(id) ON DELETE CASCADE
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    test_id UUID NOT NULL REFERENCES tests(id) ON DELETE CASCADE
 ) INHERITS (public.question);
 
 CREATE TABLE IF NOT EXISTS public.closed_questions (
-    id SERIAL PRIMARY KEY,
-    test_id INTEGER NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    test_id UUID NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
     is_multiple BOOLEAN NOT NULL 
 ) INHERITS (public.question);
 
 CREATE TABLE IF NOT EXISTS public.choices (
-    id SERIAL PRIMARY KEY,
-    closed_question_id INTEGER NOT NULL REFERENCES closed_questions(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    closed_question_id UUID NOT NULL REFERENCES closed_questions(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     is_correct BOOLEAN
 );
 
 CREATE TABLE IF NOT EXISTS public.closed_answers (
-    id SERIAL PRIMARY KEY,
-    attempt_id INTEGER NOT NULL REFERENCES attempts(id) ON DELETE CASCADE,
-    closed_question_id INTEGER NOT NULL REFERENCES closed_questions(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    attempt_id UUID NOT NULL REFERENCES attempts(id) ON DELETE CASCADE,
+    closed_question_id UUID NOT NULL REFERENCES closed_questions(id) ON DELETE CASCADE,
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public.closed_answer_choices (
-    id SERIAL PRIMARY KEY,
-    closed_answer_id INTEGER NOT NULL REFERENCES closed_answers(id) ON DELETE CASCADE,
-    choice_id INTEGER NOT NULL REFERENCES choices(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    closed_answer_id UUID NOT NULL REFERENCES closed_answers(id) ON DELETE CASCADE,
+    choice_id UUID NOT NULL REFERENCES choices(id) ON DELETE CASCADE,
     CONSTRAINT unique_closed_answer_choice UNIQUE (closed_answer_id, choice_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.open_answers (
-    id SERIAL PRIMARY KEY,
-    open_question_id INTEGER NOT NULL REFERENCES open_questions(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    open_question_id UUID NOT NULL REFERENCES open_questions(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
-    attempt_id INTEGER NOT NULL REFERENCES attempts(id) ON DELETE CASCADE,
+    attempt_id UUID NOT NULL REFERENCES attempts(id) ON DELETE CASCADE,
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

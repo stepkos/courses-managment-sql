@@ -11,6 +11,12 @@ from data_generating.factories.utils import nullable_field
 class Administrator(User):
     _TABLE_NAME: str = "administrators"
 
+    admin_level: str = field(
+        default_factory=lambda: fake.random_element(
+            elements=OrderedDict([("coordinator", 0.2), ("course_admin", 0.2), ("user_admin", 0.2), ("term_admin", 0.2), ("faculty_admin", 0.2)])
+        )
+    )
+
 
 @dataclass(kw_only=True)
 class Faculty(BaseModel):
@@ -26,8 +32,8 @@ class Faculty(BaseModel):
 class FacultyAdministrator(BaseModel):
     _TABLE_NAME: str = "faculty_administrators"
 
-    faculty_id: int
-    administrator_id: int
+    faculty_id: str
+    administrator_id: str
 
 
 @dataclass(kw_only=True)
@@ -35,7 +41,7 @@ class FieldOfStudy(BaseModel):
     _TABLE_NAME: str = "fields_of_study"
 
     name: str = field(default_factory=fake.name)  # TODO: use better generator
-    faculty_id: int
+    faculty_id: str
     description: str = ""
     start_year: int = field(default_factory=lambda: fake.random_int(min=2010, max=2025))
     created_by: int | None
@@ -46,7 +52,7 @@ class FieldOfStudy(BaseModel):
 class Term(BaseModel):
     _TABLE_NAME: str = "terms"
 
-    field_of_study_id: int
+    field_of_study_id: str
     term_number: int = field(
         default_factory=lambda: fake.random_int(min=1, max=10)
     )  # TODO: is 10 really the max? What about phds?
@@ -58,7 +64,7 @@ class Term(BaseModel):
 class Course(BaseModel):
     _TABLE_NAME: str = "courses"
 
-    term_id: int
+    term_id: str
     title: str = field(default_factory=fake.name)  # TODO: use better generator
     description: str = field(default_factory=fake.text)  # TODO?: use better generator
     created_by: int | None
@@ -96,8 +102,8 @@ class Host(User):
 class Group(BaseModel):
     _TABLE_NAME: str = "groups"
 
-    course_id: int
-    college_term_id: int
+    course_id: str
+    college_term_id: str
     name: str = field(default_factory=fake.name)  # TODO: use better generator
     description: str = field(default_factory=fake.name)  # TODO: use better generator
     image: str | None = field(default_factory=nullable_field(fake.url))
@@ -110,16 +116,18 @@ class Student(User):
     _TABLE_NAME: str = "students"
 
     index: str = field(
-        default_factory=lambda: str(fake.random_int(min=100000, max=999999))
+        default_factory=lambda: str(fake.random_int(min=100000, max=999999)) # TODO what about 011111
     )
+
+
 
 
 @dataclass(kw_only=True)
 class StudentGroup(BaseModel):
     _TABLE_NAME: str = "student_groups"
 
-    group_id: int
-    student_id: int
+    group_id: str
+    student_id: str
     created_by: int
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
@@ -128,16 +136,16 @@ class StudentGroup(BaseModel):
 class HostGroup(BaseModel):
     _TABLE_NAME: str = "host_groups"
 
-    host_id: int
-    group_id: int
+    host_id: str
+    group_id: str
 
 
 @dataclass(kw_only=True)
 class HostCourse(BaseModel):
     _TABLE_NAME: str = "host_courses"
 
-    host_id: int
-    course_id: int
+    host_id: str
+    course_id: str
     is_course_admin: bool = field(
         default_factory=lambda: fake.boolean(chance_of_getting_true=20)
     )
@@ -154,32 +162,32 @@ class Entry(BaseModel):
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
     updated_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
     content: str = field(default_factory=fake.text)
-    host_id: int | None
+    host_id: str | None
 
 
 @dataclass(kw_only=True)
 class CommentOfEntry(BaseModel):
     _TABLE_NAME: str = "comment_of_entries"
 
-    commenter_id: int
+    commenter_id: str
     commenter_type: int
     content: str = field(default_factory=fake.text)
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
-    entry_id: int
+    entry_id: str
 
 
 @dataclass(kw_only=True)
 class EntryFile(File):
     _TABLE_NAME: str = "entry_files"
 
-    entry_id: int
+    entry_id: str
 
 
 @dataclass(kw_only=True)
 class Exercise(BaseModel):
     _TABLE_NAME: str = "exercises"
 
-    entry_id: int
+    entry_id: str
     due_date: str | None = field(
         default_factory=nullable_field(lambda: str(fake.date_time_this_year()))
     )
@@ -189,8 +197,8 @@ class Exercise(BaseModel):
 class Solution(BaseModel):
     _TABLE_NAME: str = "solutions"
 
-    exercise_id: int
-    student_id: int
+    exercise_id: str
+    student_id: str
     grade: float = field(
         default_factory=lambda: fake.pyfloat(min_value=0, max_value=10)
     )
@@ -202,16 +210,16 @@ class Solution(BaseModel):
 class SolutionFile(File):
     _TABLE_NAME: str = "solution_files"
 
-    solution_id: int
+    solution_id: str
 
 
 @dataclass(kw_only=True)
 class SolutionComment(BaseModel):
     _TABLE_NAME: str = "solution_comments"
 
-    commenter_id: int | None
+    commenter_id: str | None
     commenter_type: int | None
-    solution_id: int
+    solution_id: str
     content: str = field(default_factory=fake.text)
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
@@ -220,7 +228,7 @@ class SolutionComment(BaseModel):
 class Test(BaseModel):
     _TABLE_NAME: str = "tests"
 
-    entry_id: int
+    entry_id: str
     title: str = field(default_factory=fake.word)
     description: str = field(default_factory=fake.text)
     available_from_date: str = field(
@@ -244,8 +252,8 @@ class Test(BaseModel):
 class Attempt(BaseModel):
     _TABLE_NAME: str = "attempts"
 
-    student_id: int
-    test_id: int
+    student_id: str
+    test_id: str
     score: float | None = field(
         default_factory=lambda: fake.pyfloat(min_value=0, max_value=100)
     )
@@ -259,14 +267,14 @@ class Attempt(BaseModel):
 class OpenQuestion(BaseModel):
     _TABLE_NAME: str = "open_questions"
 
-    test_id: int
+    test_id: str
 
 
 @dataclass(kw_only=True)
 class ClosedQuestion(BaseModel):
     _TABLE_NAME: str = "closed_questions"
 
-    test_id: int
+    test_id: str
     is_multiple: bool = field(default_factory=fake.boolean)
 
 
@@ -274,7 +282,7 @@ class ClosedQuestion(BaseModel):
 class Choice(BaseModel):
     _TABLE_NAME: str = "choices"
 
-    closed_question_id: int
+    closed_question_id: str
     content: str = field(default_factory=fake.text)
     is_correct: bool | None = field(default_factory=nullable_field(fake.boolean))
 
@@ -283,8 +291,8 @@ class Choice(BaseModel):
 class ClosedAnswer(BaseModel):
     _TABLE_NAME: str = "closed_answers"
 
-    attempt_id: int
-    closed_question_id: int
+    attempt_id: str
+    closed_question_id: str
     submitted_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
@@ -292,15 +300,15 @@ class ClosedAnswer(BaseModel):
 class ClosedAnswerChoice(BaseModel):
     _TABLE_NAME: str = "closed_answer_choices"
 
-    closed_answer_id: int
-    choice_id: int
+    closed_answer_id: str
+    choice_id: str
 
 
 @dataclass(kw_only=True)
 class OpenAnswer(BaseModel):
     _TABLE_NAME: str = "open_answers"
 
-    open_question_id: int
+    open_question_id: str
     content: str = field(default_factory=fake.text)
-    attempt_id: int
+    attempt_id: str
     submitted_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
