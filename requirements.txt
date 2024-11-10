@@ -6,6 +6,7 @@ mypy-extensions==1.0.0
 packaging==24.2
 pathspec==0.12.1
 platformdirs==4.3.6
+PyPika==0.48.9
 python-dateutil==2.9.0.post0
 six==1.16.0
 typing_extensions==4.12.2
