@@ -1,12 +1,17 @@
 black==24.10.0
 click==8.1.7
+colorama==0.4.6
 Faker==30.8.2
 isort==5.13.2
 mypy-extensions==1.0.0
 packaging==24.2
 pathspec==0.12.1
 platformdirs==4.3.6
+psycopg==3.2.3
+psycopg-binary==3.2.3
 PyPika==0.48.9
 python-dateutil==2.9.0.post0
+python-dotenv==1.0.1
 six==1.16.0
 typing_extensions==4.12.2
+tzdata==2024.2
