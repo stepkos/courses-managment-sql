@@ -12,6 +12,9 @@ class BaseModel(ABC):
     _TABLE_NAME: str
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
+    def get_table_name(self) -> str:
+        return self._TABLE_NAME
+
 
 @dataclass(kw_only=True)
 class User(BaseModel, ABC):
