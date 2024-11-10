@@ -4,24 +4,30 @@ from pypika import Query, Table
 from pypika.terms import ValueWrapper
 
 from data_generating.factories.abstact import BaseModel
-from data_generating.factories.models import Student
+from data_generating.factories.models import Student, Host
 
 
 def generate_insert_query(instances: Sequence[BaseModel]) -> str:
     first_instance = instances[0]
+    model_type = type(first_instance)
+    if any(type(instance) is not model_type for instance in instances):
+        raise ValueError("All instances must be of the same type.")
+
     table = Table(first_instance._TABLE_NAME)
     query = Query.into(table).columns(
-        *[table[f.name] for f in first_instance.__dataclass_fields__.values()]
+        *[
+            table[f.name]
+            for f in first_instance.__dataclass_fields__.values()
+            if not f.name.startswith('_')
+        ]
     )
 
     for instance in instances:
-        if type(instance) is not type(first_instance):
-            raise ValueError("All instances must be of the same type.")
-
         query = query.insert(
             *[
                 ValueWrapper(getattr(instance, f.name))
                 for f in instance.__dataclass_fields__.values()
+                if not f.name.startswith('_')
             ]
         )
 
