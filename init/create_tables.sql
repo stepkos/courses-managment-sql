@@ -239,7 +239,7 @@ CREATE TABLE IF NOT EXISTS public.attempts (
     id SERIAL PRIMARY KEY,
     student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
     test_id INTEGER NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
-    score NUMERIC(5,2) CHECK (score >= 0.00 AND score <= 100.00),
+    score NUMERIC(5,2) CHECK (score >= 0.00 AND score <= 100.00 OR score IS NULL),
     started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     submitted_at TIMESTAMPTZ
 );
@@ -272,7 +272,7 @@ CREATE TABLE IF NOT EXISTS public.closed_answers (
 CREATE TABLE IF NOT EXISTS public.closed_answer_choices (
     id SERIAL PRIMARY KEY,
     closed_answer_id INTEGER NOT NULL REFERENCES closed_answers(id) ON DELETE CASCADE,
-    choice_id INTEGER REFERENCES choices(id) ON DELETE CASCADE,
+    choice_id INTEGER NOT NULL REFERENCES choices(id) ON DELETE CASCADE,
     CONSTRAINT unique_closed_answer_choice UNIQUE (closed_answer_id, choice_id)
 );
 
