@@ -12,27 +12,24 @@ def generate_faculty_seeder(num_records: int) -> List[Faculty]:
     return [Faculty() for _ in range(num_records)]
 
 
-def generate_faculty_administrator_seeder(num_records: int, faculty_ids: List[str], administrator_ids: List[str]) -> \
-        List[FacultyAdministrator]:
+def generate_faculty_administrator_seeder(num_records: int, faculties: List[Faculty], administrators: List[Administrator]) -> List[FacultyAdministrator]:
     return [
         FacultyAdministrator(
-            faculty_id=random.choice(faculty_ids),
-            administrator_id=random.choice(administrator_ids)
+            faculty_id=random.choice(faculties).id,
+            administrator_id=random.choice(administrators).id
         )
         for _ in range(num_records)
     ]
 
 
-def generate_field_of_study_seeder(num_records: int, faculty_ids: List[str], creator_ids: List[str | None]) -> List[
-    FieldOfStudy]:
+def generate_field_of_study_seeder(num_records: int, faculties: List[Faculty], creators: List[User | None]) -> List[FieldOfStudy]:
     return [
         FieldOfStudy(
-            faculty_id=random.choice(faculty_ids),
-            created_by=random.choice(creator_ids),
+            faculty_id=random.choice(faculties).id,
+            created_by=random.choice(creators).id if random.choice(creators) is not None else None,
         )
         for _ in range(num_records)
     ]
-
 
 def generate_college_term_seeder(num_records: int) -> List[CollegeTerm]:
     return [CollegeTerm() for _ in range(num_records)]
@@ -42,182 +39,178 @@ def generate_degree_seeder(num_records: int) -> List[Degree]:
     return [Degree() for _ in range(num_records)]
 
 
-def generate_host_seeder(num_records: int, degrees: List[str | None]) -> List[Host]:
+def generate_host_seeder(num_records: int, degrees: List[Degree | None]) -> List[Host]:
     return [
-        Host(degree=random.choice(degrees))
+        Host(degree=random.choice(degrees).name if random.choice(degrees) is not None else None)
         for _ in range(num_records)
     ]
 
 
-def generate_group_seeder(num_records: int, course_ids: List[str], college_term_ids: List[str],
-                          creator_ids: List[str | None]) -> List[Group]:
+def generate_group_seeder(num_records: int, courses: List[Course], college_terms: List[CollegeTerm], creators: List[User | None]) -> List[Group]:
     return [
         Group(
-            course_id=random.choice(course_ids),
-            college_term_id=random.choice(college_term_ids),
-            created_by=random.choice(creator_ids)
+            course_id=random.choice(courses).id,
+            college_term_id=random.choice(college_terms).id,
+            created_by=random.choice(creators).id if random.choice(creators) is not None else None
         )
         for _ in range(num_records)
     ]
-
 
 def generate_student_seeder(num_records: int) -> List[Student]:
     return [Student() for _ in range(num_records)]
 
 
-def generate_student_group_seeder(num_records: int, group_ids: List[str], student_ids: List[str], creator_ids: List[str]) -> List[StudentGroup]:
+def generate_student_group_seeder(num_records: int, groups: List[Group], students: List[Student], creators: List[User]) -> List[StudentGroup]:
     return [
         StudentGroup(
-            group_id=random.choice(group_ids),
-            student_id=random.choice(student_ids),
-            created_by=random.choice(creator_ids)
+            group_id=random.choice(groups).id,
+            student_id=random.choice(students).id,
+            created_by=random.choice(creators).id
         )
         for _ in range(num_records)
     ]
 
-
-def generate_host_course_seeder(num_records: int, host_ids: List[str], course_ids: List[str], creator_ids: List[str | None]) -> List[HostCourse]:
+def generate_host_course_seeder(num_records: int, hosts: List[Host], courses: List[Course], creators: List[User | None]) -> List[HostCourse]:
     return [
         HostCourse(
-            host_id=random.choice(host_ids),
-            course_id=random.choice(course_ids),
-            created_by=random.choice(creator_ids)
+            host_id=random.choice(hosts).id,
+            course_id=random.choice(courses).id,
+            created_by=random.choice(creators).id if random.choice(creators) is not None else None
         )
         for _ in range(num_records)
     ]
 
 
-def generate_entry_seeder(num_records: int, group_ids: List[str | None], host_ids: List[str | None]) -> List[Entry]:
+def generate_entry_seeder(num_records: int, groups: List[Group | None], hosts: List[Host | None]) -> List[Entry]:
     return [
         Entry(
-            group_id=random.choice(group_ids),
-            host_id=random.choice(host_ids)
+            group_id=random.choice(groups).id if random.choice(groups) is not None else None,
+            host_id=random.choice(hosts).id if random.choice(hosts) is not None else None
         )
         for _ in range(num_records)
     ]
 
 
-def generate_comment_of_entry_seeder(num_records: int, commenter_ids: List[str], entry_ids: List[str], commenter_types: List[str]) -> List[CommentOfEntry]:
+def generate_comment_of_entry_seeder(num_records: int, commenters: List[User], entries: List[Entry], commenter_types: List[int]) -> List[CommentOfEntry]:
     return [
         CommentOfEntry(
-            commenter_id=random.choice(commenter_ids),
+            commenter_id=random.choice(commenters).id,
             commenter_type=random.choice(commenter_types),
-            entry_id=random.choice(entry_ids)
+            entry_id=random.choice(entries).id
         )
         for _ in range(num_records)
     ]
 
 
-def generate_entry_file_seeder(num_records: int, entry_ids: List[str]) -> List[EntryFile]:
-    return [
-        EntryFile(
-            entry_id=random.choice(entry_ids)
-        )
-        for _ in range(num_records)
-    ]
-
-
-def generate_exercise_seeder(num_records: int, entry_ids: List[str]) -> List[Exercise]:
+def generate_exercise_seeder(num_records: int, entries: List[Entry]) -> List[Exercise]:
     return [
         Exercise(
-            entry_id=random.choice(entry_ids)
+            entry_id=random.choice(entries).id
         )
         for _ in range(num_records)
     ]
 
 
-def generate_solution_seeder(num_records: int, exercise_ids: List[str], student_ids: List[str]) -> List[Solution]:
+def generate_entry_file_seeder(num_records: int, entries: List[Entry]) -> List[EntryFile]:
+    return [
+        EntryFile(
+            entry_id=random.choice(entries).id
+        )
+        for _ in range(num_records)
+    ]
+
+
+def generate_solution_seeder(num_records: int, exercises: List[Exercise], students: List[Student]) -> List[Solution]:
     return [
         Solution(
-            exercise_id=random.choice(exercise_ids),
-            student_id=random.choice(student_ids)
+            exercise_id=random.choice(exercises).id,
+            student_id=random.choice(students).id
         )
         for _ in range(num_records)
     ]
 
 
-def generate_solution_file_seeder(num_records: int, solution_ids: List[str]) -> List[SolutionFile]:
+def generate_solution_file_seeder(num_records: int, solutions: List[Solution]) -> List[SolutionFile]:
     return [
         SolutionFile(
-            solution_id=random.choice(solution_ids)
+            solution_id=random.choice(solutions).id
         )
         for _ in range(num_records)
     ]
 
 
-def generate_solution_comment_seeder(num_records: int, commenter_ids: List[str | None], commenter_types: List[int | None], solution_ids: List[str]) -> List[SolutionComment]:
+def generate_solution_comment_seeder(num_records: int, commenters: List[User | None], commenter_types: List[int | None], solutions: List[Solution]) -> List[SolutionComment]:
     return [
         SolutionComment(
-            commenter_id=random.choice(commenter_ids),
+            commenter_id=random.choice(commenters).id if random.choice(commenters) is not None else None,
             commenter_type=random.choice(commenter_types),
-            solution_id=random.choice(solution_ids)
+            solution_id=random.choice(solutions).id
         )
         for _ in range(num_records)
     ]
 
 
-def generate_test_seeder(num_records: int, entry_ids: List[str]) -> List[Test]:
+def generate_test_seeder(num_records: int, entries: List[Entry]) -> List[Test]:
     return [
         Test(
-            entry_id=random.choice(entry_ids)
+            entry_id=random.choice(entries).id
         )
         for _ in range(num_records)
     ]
 
 
-def generate_attempt_seeder(num_records: int, student_ids: List[str], test_ids: List[str]) -> List[Attempt]:
+def generate_attempt_seeder(num_records: int, students: List[Student], tests: List[Test]) -> List[Attempt]:
     return [
         Attempt(
-            student_id=random.choice(student_ids),
-            test_id=random.choice(test_ids)
+            student_id=random.choice(students).id,
+            test_id=random.choice(tests).id
         )
         for _ in range(num_records)
     ]
 
 
-def generate_open_question_seeder(num_records: int, test_ids: List[str]) -> List[OpenQuestion]:
+def generate_open_question_seeder(num_records: int, tests: List[Test]) -> List[OpenQuestion]:
     return [
         OpenQuestion(
-            test_id=random.choice(test_ids)
+            test_id=random.choice(tests).id
         )
         for _ in range(num_records)
     ]
 
 
-def generate_closed_question_seeder(num_records: int, test_ids: List[str]) -> List[ClosedQuestion]:
+def generate_closed_question_seeder(num_records: int, tests: List[Test]) -> List[ClosedQuestion]:
     return [
         ClosedQuestion(
-            test_id=random.choice(test_ids)
+            test_id=random.choice(tests).id
         )
         for _ in range(num_records)
     ]
 
 
-def generate_choice_seeder(num_records: int, closed_question_ids: List[str]) -> List[Choice]:
+def generate_choice_seeder(num_records: int, closed_questions: List[ClosedQuestion]) -> List[Choice]:
     return [
         Choice(
-            closed_question_id=random.choice(closed_question_ids)
+            closed_question_id=random.choice(closed_questions).id
         )
         for _ in range(num_records)
     ]
 
 
-def generate_closed_answer_seeder(num_records: int, attempt_ids: List[str], closed_question_ids: List[str]) -> List[ClosedAnswer]:
+def generate_closed_answer_seeder(num_records: int, attempts: List[Attempt], closed_questions: List[ClosedQuestion]) -> List[ClosedAnswer]:
     return [
         ClosedAnswer(
-            attempt_id=random.choice(attempt_ids),
-            closed_question_id=random.choice(closed_question_ids)
+            attempt_id=random.choice(attempts).id,
+            closed_question_id=random.choice(closed_questions).id
         )
         for _ in range(num_records)
     ]
 
 
-def generate_closed_answer_choice_seeder(num_records: int, closed_answer_ids: List[str], choice_ids: List[str]) -> List[ClosedAnswerChoice]:
+def generate_closed_answer_choice_seeder(num_records: int, closed_answers: List[ClosedAnswer], choices: List[Choice]) -> List[ClosedAnswerChoice]:
     return [
         ClosedAnswerChoice(
-            closed_answer_id=random.choice(closed_answer_ids),
-            choice_id=random.choice(choice_ids)
+            closed_answer_id=random.choice(closed_answers).id,
+            choice_id=random.choice(choices).id
         )
         for _ in range(num_records)
     ]
-

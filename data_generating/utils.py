@@ -30,5 +30,8 @@ def generate_insert_query(instances: Sequence[BaseModel]) -> str:
 
 if __name__ == "__main__":
     administrators = generate_administrator_seeder(5)
-    sql = generate_insert_query(administrators)
+    faculty = generate_faculty_seeder(5)
+    faculties_administrators = generate_faculty_administrator_seeder(5, faculty, administrators)
+    print(administrators)
+    sql = generate_insert_query(faculties_administrators)
     print(sql)
