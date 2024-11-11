@@ -1,11 +1,14 @@
 from dataclasses import fields
 from typing import Sequence
 
+
 from pypika import Query, Table
 from pypika.terms import ValueWrapper
 
 from data_generating.factories.abstact import BaseModel
 from data_generating.factories.models import Student
+
+from seeders.models_seeder import *
 
 
 def generate_insert_query(instances: Sequence[BaseModel]) -> str:
@@ -26,6 +29,6 @@ def generate_insert_query(instances: Sequence[BaseModel]) -> str:
 
 
 if __name__ == "__main__":
-    students = [Student() for _ in range(5)]
-    sql = generate_insert_query(students)
+    administrators = generate_administrator_seeder(5)
+    sql = generate_insert_query(administrators)
     print(sql)

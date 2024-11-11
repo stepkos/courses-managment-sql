@@ -1,4 +1,5 @@
 import random
+from typing import List
 from collections import OrderedDict
 from dataclasses import dataclass, field
 
@@ -13,7 +14,8 @@ class Administrator(User):
 
     admin_level: str = field(
         default_factory=lambda: fake.random_element(
-            elements=OrderedDict([("coordinator", 0.2), ("course_admin", 0.2), ("user_admin", 0.2), ("term_admin", 0.2), ("faculty_admin", 0.2)])
+            elements=OrderedDict([("coordinator", 0.2), ("course_admin", 0.2), ("user_admin", 0.2), ("term_admin", 0.2),
+                                  ("faculty_admin", 0.2)])
         )
     )
 
@@ -44,7 +46,7 @@ class FieldOfStudy(BaseModel):
     faculty_id: str
     description: str = ""
     start_year: int = field(default_factory=lambda: fake.random_int(min=2010, max=2025))
-    created_by: int | None
+    created_by: str | None
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
@@ -56,7 +58,7 @@ class Term(BaseModel):
     term_number: int = field(
         default_factory=lambda: fake.random_int(min=1, max=10)
     )  # TODO: is 10 really the max? What about phds?
-    created_by: int | None
+    created_by: str | None
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
@@ -67,7 +69,7 @@ class Course(BaseModel):
     term_id: str
     title: str = field(default_factory=fake.name)  # TODO: use better generator
     description: str = field(default_factory=fake.text)  # TODO?: use better generator
-    created_by: int | None
+    created_by: str | None
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
@@ -107,7 +109,7 @@ class Group(BaseModel):
     name: str = field(default_factory=fake.name)  # TODO: use better generator
     description: str = field(default_factory=fake.name)  # TODO: use better generator
     image: str | None = field(default_factory=nullable_field(fake.url))
-    created_by: int | None
+    created_by: str | None
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
@@ -116,10 +118,8 @@ class Student(User):
     _TABLE_NAME: str = "students"
 
     index: str = field(
-        default_factory=lambda: str(fake.random_int(min=100000, max=999999)) # TODO what about 011111
+        default_factory=lambda: str(fake.random_int(min=100000, max=999999))  # TODO what about 011111
     )
-
-
 
 
 @dataclass(kw_only=True)
@@ -128,7 +128,7 @@ class StudentGroup(BaseModel):
 
     group_id: str
     student_id: str
-    created_by: int
+    created_by: str
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
@@ -149,7 +149,7 @@ class HostCourse(BaseModel):
     is_course_admin: bool = field(
         default_factory=lambda: fake.boolean(chance_of_getting_true=20)
     )
-    created_by: int | None
+    created_by: str | None
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
@@ -312,3 +312,13 @@ class OpenAnswer(BaseModel):
     content: str = field(default_factory=fake.text)
     attempt_id: str
     submitted_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
+
+
+def generate_open_answer_seeder(num_records: int, open_question_ids: List[str], attempt_ids: List[str]) -> List[OpenAnswer]:
+    return [
+        OpenAnswer(
+            open_question_id=random.choice(open_question_ids),
+            attempt_id=random.choice(attempt_ids)
+        )
+        for _ in range(num_records)
+    ]
