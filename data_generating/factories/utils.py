@@ -4,7 +4,6 @@ from typing import Callable, TypeVar, Sequence, Type, Iterable
 T = TypeVar("T")
 
 
-#TODO probability is not used
 def nullable_field(
     generator: Callable[[], T], probability_of_none: float = 0.3
 ) -> Callable[[], T | None]:

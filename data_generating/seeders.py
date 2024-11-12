@@ -2,7 +2,8 @@ from typing import Sequence, Callable
 
 from data_generating.factories.models import *
 from data_generating.factories.models import Course
-from data_generating.seeders.utils import unique
+from data_generating.utils import unique
+
 
 def generate_user(
     degrees: list[Degree],

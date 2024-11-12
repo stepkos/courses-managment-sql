@@ -1,4 +1,4 @@
-from data_generating.seeders.models_seeder import *
+from data_generating.seeders import *
 from data_generating.utils import generate_insert_query
 
 num_records = 1_000

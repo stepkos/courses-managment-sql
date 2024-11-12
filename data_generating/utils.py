@@ -1,11 +1,12 @@
+from typing import Callable, Sequence
+from data_generating.factories.abstact import BaseModel
+
 from dataclasses import fields
-from typing import Sequence
 
 from pypika import Query, Table
 from pypika.terms import ValueWrapper
 
-from data_generating.factories.abstact import BaseModel
-from data_generating.seeders.models_seeder import *
+from data_generating.seeders import *
 
 
 def generate_insert_query(instances: Sequence[BaseModel]) -> str:
@@ -23,3 +24,11 @@ def generate_insert_query(instances: Sequence[BaseModel]) -> str:
         )
 
     return str(query)
+
+
+def unique(gen: Callable[[], BaseModel], num_records) -> Sequence:
+    unique_entities = set()
+    while len(unique_entities) < num_records:
+        unique_entities.add(gen())
+    return list(unique_entities)
+
