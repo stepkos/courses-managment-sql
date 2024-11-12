@@ -5,7 +5,9 @@ num_records = 2
 
 administrators = generate_administrator_seeder(num_records)
 faculties = generate_faculty_seeder(num_records)
-faculty_administrators = generate_faculty_administrator_seeder(num_records, faculties, administrators)
+faculty_administrators = generate_faculty_administrator_seeder(
+    num_records, faculties, administrators
+)
 fields_of_study = generate_field_of_study_seeder(num_records, faculties, administrators)
 terms = generate_term_seeder(num_records, fields_of_study, administrators)
 courses = generate_course_seeder(num_records, terms, administrators)
@@ -15,9 +17,13 @@ hosts = generate_host_seeder(num_records, degrees)
 groups = generate_group_seeder(num_records, courses, college_terms, administrators)
 students = generate_student_seeder(num_records)
 
-commenters = list(map(lambda x: (x, 3), students)) + list(map(lambda x: (x, 2), hosts)),
+commenters = (
+    list(map(lambda x: (x, 3), students)) + list(map(lambda x: (x, 2), hosts)),
+)
 
-student_groups = generate_student_group_seeder(num_records, groups, students, administrators)
+student_groups = generate_student_group_seeder(
+    num_records, groups, students, administrators
+)
 host_groups = generate_host_group_seeder(num_records, hosts, groups)
 host_courses = generate_host_course_seeder(num_records, hosts, courses, administrators)
 entries = generate_entry_seeder(num_records, groups, hosts)
@@ -33,7 +39,9 @@ open_questions = generate_open_question_seeder(num_records, tests)
 closed_questions = generate_closed_question_seeder(num_records, tests)
 choices = generate_choice_seeder(num_records, closed_questions)
 closed_answers = generate_closed_answer_seeder(num_records, attempts, closed_questions)
-closed_answer_choices = generate_closed_answer_choice_seeder(num_records, closed_answers, choices)
+closed_answer_choices = generate_closed_answer_choice_seeder(
+    num_records, closed_answers, choices
+)
 
 
 tables: list[Sequence[BaseModel]] = [
@@ -68,3 +76,7 @@ tables: list[Sequence[BaseModel]] = [
 ]
 
 print("".join(map(lambda x: generate_insert_query(x) + ";\n", tables)))
+
+
+# 1 czy robimy user profile, imo tak
+# 2 uniqueness

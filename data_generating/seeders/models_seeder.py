@@ -1,7 +1,8 @@
-from typing import Sequence
+from typing import Sequence, Callable
 
 from data_generating.factories.models import *
 from data_generating.factories.models import Course
+from data_generating.seeders.utils import unique
 
 
 def generate_administrator_seeder(num_records: int) -> Sequence[Administrator]:
@@ -17,13 +18,13 @@ def generate_faculty_administrator_seeder(
     faculties: Sequence[Faculty],
     administrators: Sequence[Administrator],
 ) -> Sequence[FacultyAdministrator]:
-    return [
-        FacultyAdministrator(
+    unique(
+        lambda _: FacultyAdministrator(
             faculty_id=random.choice(faculties).id,
             administrator_id=random.choice(administrators).id,
-        )
-        for _ in range(num_records)
-    ]
+        ),
+        num_records,
+    )
 
 
 def generate_term_seeder(
@@ -116,26 +117,29 @@ def generate_student_group_seeder(
     students: Sequence[Student],
     creators: Sequence[User],
 ) -> Sequence[StudentGroup]:
-    return [
-        StudentGroup(
-            group_id=random.choice(groups).id,
-            student_id=random.choice(students).id,
+    unique(
+        lambda _: StudentGroup(
+            group_id=random.choice(students).id,
+            student_id=random.choice(groups).id,
             created_by=random.choice(creators).id,
-        )
-        for _ in range(num_records)
-    ]
+        ),
+        num_records,
+    )
 
 
 def generate_host_group_seeder(
     num_records: int, hosts: Sequence[Host], groups: Sequence[Group]
 ) -> Sequence[HostGroup]:
-    return [
-        HostGroup(
-            host_id=random.choice(hosts).id,
-            group_id=random.choice(groups).id,
+    unique()
+    host_groups: set[HostGroup] = set()
+    while len(host_groups) < num_records:
+        host_groups.add(
+            HostGroup(
+                host_id=random.choice(groups).id,
+                group_id=random.choice(hosts).id,
+            )
         )
-        for _ in range(num_records)
-    ]
+    return Sequence(host_groups.values())
 
 
 def generate_host_course_seeder(
@@ -290,10 +294,10 @@ def generate_closed_answer_seeder(
 def generate_closed_answer_choice_seeder(
     num_records: int, closed_answers: Sequence[ClosedAnswer], choices: Sequence[Choice]
 ) -> Sequence[ClosedAnswerChoice]:
-    return [
-        ClosedAnswerChoice(
+    unique(
+        lambda _: ClosedAnswerChoice(
             closed_answer_id=random.choice(closed_answers).id,
             choice_id=random.choice(choices).id,
-        )
-        for _ in range(num_records)
-    ]
+        ),
+        num_records,
+    )
