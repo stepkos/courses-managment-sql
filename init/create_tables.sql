@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS public.fields_of_study (
     faculty_id UUID NOT NULL REFERENCES faculties(id),
     description TEXT NOT NULL DEFAULT '',
     start_year INTEGER NOT NULL,
-    created_by INTEGER REFERENCES administrators(id) ON DELETE SET NULL,
+    created_by UUID REFERENCES administrators(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS public.terms (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     field_of_study_id UUID NOT NULL REFERENCES fields_of_study(id),
     term_number INTEGER NOT NULL,
-    created_by INTEGER REFERENCES administrators(id) ON DELETE SET NULL,
+    created_by UUID REFERENCES administrators(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS public.courses (
     term_id UUID NOT NULL REFERENCES terms(id),
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL DEFAULT '',
-    created_by INTEGER REFERENCES administrators(id),
+    created_by UUID REFERENCES administrators(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -132,7 +132,7 @@ CREATE TABLE IF NOT EXISTS public.groups (
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL DEFAULT '',
     image TEXT CHECK (image ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$' OR image IS NULL),
-    created_by INTEGER REFERENCES hosts(id) ON DELETE SET NULL,
+    created_by UUID REFERENCES hosts(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS public.student_groups (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     group_id UUID NOT NULL REFERENCES groups(id),
     student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
-    created_by INTEGER NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
+    created_by UUID NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT unique_student_group UNIQUE (student_id, group_id)
 );
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS public.host_courses (
     host_id UUID NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
     course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
     is_course_admin BOOLEAN NOT NULL,
-    created_by INTEGER NOT NULL REFERENCES hosts(id),
+    created_by UUID NOT NULL REFERENCES hosts(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
