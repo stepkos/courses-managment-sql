@@ -77,4 +77,5 @@ print("".join(map(lambda x: generate_insert_query(x) + ";\n", tables)))
 
 
 # 1 czy robimy user profile, imo tak
-# 2 uniqueness
+# 2 nulle
+# num_records randomowe

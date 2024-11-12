@@ -39,7 +39,7 @@ class Administrator(User):
 class Faculty(BaseModel):
     _TABLE_NAME: str = "faculties"
 
-    name: str = field(default_factory=fake.name)  # TODO: use better generator
+    name: str = field(default_factory=fake.word)
     email: str = field(default_factory=fake.email)
     phone: str = field(default_factory=fake.phone_number)
     website: str = field(default_factory=fake.url)
@@ -65,7 +65,7 @@ class FacultyAdministrator(BaseModel):
 class FieldOfStudy(BaseModel):
     _TABLE_NAME: str = "fields_of_study"
 
-    name: str = field(default_factory=fake.name)  # TODO: use better generator
+    name: str = field(default_factory=fake.word)
     faculty_id: str
     description: str = ""
     start_year: int = field(default_factory=lambda: fake.random_int(min=2010, max=2025))
@@ -79,8 +79,8 @@ class Term(BaseModel):
 
     field_of_study_id: str
     term_number: int = field(
-        default_factory=lambda: fake.random_int(min=1, max=10)
-    )  # TODO: is 10 really the max? What about phds?
+        default_factory=lambda: fake.random_int(min=1, max=15)
+    )
     created_by: str | None
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
@@ -129,8 +129,8 @@ class Group(BaseModel):
 
     course_id: str
     college_term_id: str
-    name: str = field(default_factory=fake.name)  # TODO: use better generator
-    description: str = field(default_factory=fake.name)  # TODO: use better generator
+    name: str = field(default_factory=fake.word)
+    description: str = field(default_factory=fake.text)
     image: str | None = field(default_factory=nullable_field(fake.url))
     created_by: str | None
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
