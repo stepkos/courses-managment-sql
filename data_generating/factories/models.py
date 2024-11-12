@@ -9,7 +9,7 @@ from data_generating.factories.utils import make_hashable, nullable_field
 
 
 @dataclass(kw_only=True, frozen=True)
-class User(BaseModel):
+class User(BaseModel, make_hashable("email")):
     _TABLE_NAME: str = "users"
 
     first_name: str = field(default_factory=fake.first_name)
