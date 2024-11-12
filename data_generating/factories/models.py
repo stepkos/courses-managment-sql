@@ -9,23 +9,18 @@ from data_generating.factories.utils import nullable_field, make_hashable
 
 
 @dataclass(kw_only=True, frozen=True)
-class Administrator(User, make_hashable("email")):
-    _TABLE_NAME: str = "administrators"
+class User(BaseModel, ABC):
+    _TABLE_NAME: str = "users"
 
-    admin_level: str = field(
-        default_factory=lambda: fake.random_element(
-            elements=OrderedDict(
-                [
-                    ("coordinator", 0.2),
-                    ("course_admin", 0.2),
-                    ("user_admin", 0.2),
-                    ("term_admin", 0.2),
-                    ("faculty_admin", 0.2),
-                ]
-            )
-        )
+    first_name: str = field(default_factory=fake.first_name)
+    surname: str = field(default_factory=fake.last_name)
+    email: str = field(default_factory=fake.email)
+    password: str = field(default_factory=lambda: fake.password(length=12))
+    is_active: bool = field(
+        default_factory=lambda: random.choices([True, False], weights=[75, 25])[0]
     )
-
+    degree: str | None
+    profile_type: int # 0 - administrator, 1 - host, 2 - student
 
 @dataclass(kw_only=True, frozen=True)
 class Faculty(BaseModel):
@@ -111,17 +106,6 @@ class Group(BaseModel):
     image: str | None = field(default_factory=nullable_field(fake.url))
     created_by: str | None
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
-
-
-@dataclass(kw_only=True, frozen=True)
-class Student(User, make_hashable("email")):
-    _TABLE_NAME: str = "students"
-
-    index: str = field(
-        default_factory=lambda: str(
-            fake.random_int(min=100000, max=999999)
-        )
-    )
 
 
 @dataclass(kw_only=True, frozen=True)
