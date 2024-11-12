@@ -111,6 +111,7 @@ def generate_course_seeder(
         for _ in range(num_records)
     ]
 
+
 def generate_student_group_seeder(
     num_records: int,
     groups: Sequence[Group],
@@ -227,7 +228,7 @@ def generate_solution_comment_seeder(
 ) -> Sequence[SolutionComment]:
     return [
         SolutionComment(
-            user_id=(user.id) if (user := random.choice(commenters)) else None,
+            user_id=user.id if (user := random.choice(commenters)) else None,
             solution_id=random.choice(solutions).id,
         )
         for _ in range(num_records)
