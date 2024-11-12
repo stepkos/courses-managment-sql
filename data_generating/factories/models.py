@@ -1,7 +1,7 @@
 import random
-from typing import List
 from collections import OrderedDict
 from dataclasses import dataclass, field
+from typing import List
 
 from data_generating.factories import fake
 from data_generating.factories.abstact import *
@@ -14,8 +14,15 @@ class Administrator(User):
 
     admin_level: str = field(
         default_factory=lambda: fake.random_element(
-            elements=OrderedDict([("coordinator", 0.2), ("course_admin", 0.2), ("user_admin", 0.2), ("term_admin", 0.2),
-                                  ("faculty_admin", 0.2)])
+            elements=OrderedDict(
+                [
+                    ("coordinator", 0.2),
+                    ("course_admin", 0.2),
+                    ("user_admin", 0.2),
+                    ("term_admin", 0.2),
+                    ("faculty_admin", 0.2),
+                ]
+            )
         )
     )
 
@@ -118,7 +125,9 @@ class Student(User):
     _TABLE_NAME: str = "students"
 
     index: str = field(
-        default_factory=lambda: str(fake.random_int(min=100000, max=999999))  # TODO what about 011111
+        default_factory=lambda: str(
+            fake.random_int(min=100000, max=999999)
+        )  # TODO what about 011111
     )
 
 
@@ -314,11 +323,13 @@ class OpenAnswer(BaseModel):
     submitted_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
-def generate_open_answer_seeder(num_records: int, open_question_ids: List[str], attempt_ids: List[str]) -> List[OpenAnswer]:
+def generate_open_answer_seeder(
+    num_records: int, open_question: List[OpenQuestion], attempts: List[Attempt]
+) -> List[OpenAnswer]:
     return [
         OpenAnswer(
-            open_question_id=random.choice(open_question_ids),
-            attempt_id=random.choice(attempt_ids)
+            open_question_id=random.choice(open_question).id,
+            attempt_id=random.choice(attempts).id,
         )
         for _ in range(num_records)
     ]

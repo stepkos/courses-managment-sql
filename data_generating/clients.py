@@ -1,5 +1,6 @@
-import psycopg
 from contextlib import contextmanager
+
+import psycopg
 
 from data_generating import config
 
