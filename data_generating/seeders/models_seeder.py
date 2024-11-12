@@ -18,8 +18,8 @@ def generate_faculty_administrator_seeder(
     faculties: Sequence[Faculty],
     administrators: Sequence[Administrator],
 ) -> Sequence[FacultyAdministrator]:
-    unique(
-        lambda _: FacultyAdministrator(
+    return unique(
+        lambda: FacultyAdministrator(
             faculty_id=random.choice(faculties).id,
             administrator_id=random.choice(administrators).id,
         ),
@@ -117,8 +117,8 @@ def generate_student_group_seeder(
     students: Sequence[Student],
     creators: Sequence[User],
 ) -> Sequence[StudentGroup]:
-    unique(
-        lambda _: StudentGroup(
+    return unique(
+        lambda: StudentGroup(
             group_id=random.choice(students).id,
             student_id=random.choice(groups).id,
             created_by=random.choice(creators).id,
@@ -130,16 +130,14 @@ def generate_student_group_seeder(
 def generate_host_group_seeder(
     num_records: int, hosts: Sequence[Host], groups: Sequence[Group]
 ) -> Sequence[HostGroup]:
-    unique()
-    host_groups: set[HostGroup] = set()
-    while len(host_groups) < num_records:
-        host_groups.add(
+    return unique(
+        lambda: 
             HostGroup(
                 host_id=random.choice(groups).id,
                 group_id=random.choice(hosts).id,
-            )
-        )
-    return Sequence(host_groups.values())
+            ), 
+            num_records
+    )
 
 
 def generate_host_course_seeder(
@@ -294,8 +292,8 @@ def generate_closed_answer_seeder(
 def generate_closed_answer_choice_seeder(
     num_records: int, closed_answers: Sequence[ClosedAnswer], choices: Sequence[Choice]
 ) -> Sequence[ClosedAnswerChoice]:
-    unique(
-        lambda _: ClosedAnswerChoice(
+    return unique(
+        lambda: ClosedAnswerChoice(
             closed_answer_id=random.choice(closed_answers).id,
             choice_id=random.choice(choices).id,
         ),

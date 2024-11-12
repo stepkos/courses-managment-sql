@@ -17,9 +17,7 @@ hosts = generate_host_seeder(num_records, degrees)
 groups = generate_group_seeder(num_records, courses, college_terms, administrators)
 students = generate_student_seeder(num_records)
 
-commenters = (
-    list(map(lambda x: (x, 3), students)) + list(map(lambda x: (x, 2), hosts)),
-)
+commenters = list(map(lambda x: (x, 3), students)) + list(map(lambda x: (x, 2), hosts))
 
 student_groups = generate_student_group_seeder(
     num_records, groups, students, administrators
