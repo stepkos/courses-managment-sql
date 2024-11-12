@@ -61,7 +61,8 @@ CREATE TABLE IF NOT EXISTS public.files (
 -- CONCRETE TABLES
 
 CREATE TABLE IF NOT EXISTS public.administrators (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    admin_level VARCHAR(50)
 ) INHERITS (public.users);
 
 ALTER TABLE public.administrators
