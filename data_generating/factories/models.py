@@ -38,7 +38,7 @@ class Faculty(BaseModel):
 
 
 @dataclass(kw_only=True, frozen=True)
-class FacultyAdministrator(BaseModel, make_hashable(("faculty_id", "administrator_id"))):
+class FacultyAdministrator(BaseModel, make_hashable("faculty_id", "administrator_id")):
     _TABLE_NAME: str = "faculty_administrators"
 
     faculty_id: str
@@ -127,12 +127,12 @@ class Student(User, make_hashable("email")):
     index: str = field(
         default_factory=lambda: str(
             fake.random_int(min=100000, max=999999)
-        )  # TODO what about 011111
+        )
     )
 
 
 @dataclass(kw_only=True, frozen=True)
-class StudentGroup(BaseModel, make_hashable(("group_id", "student_id"))):
+class StudentGroup(BaseModel, make_hashable("group_id", "student_id")):
     _TABLE_NAME: str = "student_groups"
 
     group_id: str
@@ -142,7 +142,7 @@ class StudentGroup(BaseModel, make_hashable(("group_id", "student_id"))):
 
 
 @dataclass(kw_only=True, frozen=True)
-class HostGroup(BaseModel, make_hashable(("host_id", "group_id"))):
+class HostGroup(BaseModel, make_hashable("host_id", "group_id")):
     _TABLE_NAME: str = "host_groups"
 
     host_id: str
@@ -306,7 +306,7 @@ class ClosedAnswer(BaseModel):
 
 
 @dataclass(kw_only=True, frozen=True)
-class ClosedAnswerChoice(BaseModel, make_hashable(("closed_answer_id", "choice_id"))):
+class ClosedAnswerChoice(BaseModel, make_hashable("closed_answer_id", "choice_id")):
     _TABLE_NAME: str = "closed_answer_choices"
 
     closed_answer_id: str
