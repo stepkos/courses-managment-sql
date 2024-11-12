@@ -26,6 +26,14 @@ class Administrator(User):
         )
     )
 
+    def __hash__(self): 
+        return hash(self.email)
+    
+    def __eq__(self, other): 
+        if isinstance(other, Administrator): 
+            return hash(self) == hash(other)
+        return False
+
 
 @dataclass(kw_only=True, frozen=True)
 class Faculty(BaseModel):
@@ -43,6 +51,14 @@ class FacultyAdministrator(BaseModel):
 
     faculty_id: str
     administrator_id: str
+
+    def __hash__(self): 
+        return hash((self.faculty_id, self.administrator_id)) 
+    
+    def __eq__(self, other): 
+        if isinstance(other, FacultyAdministrator): 
+            return hash(self) == hash(other)
+        return False
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -85,8 +101,8 @@ class CollegeTerm(BaseModel):
     _TABLE_NAME: str = "college_terms"
 
     # TODO: definitely use better generators here
-    start_date: str = field(default_factory=lambda: str(fake.date_time_this_year))
-    end_date: str | None = field(default_factory=lambda: str(fake.date_time_this_year))
+    start_date: str = field(default_factory=lambda: str(fake.date_time_this_year()))
+    end_date: str | None = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -130,6 +146,14 @@ class Student(User):
         )  # TODO what about 011111
     )
 
+    def __hash__(self): 
+        return hash((self.email)) 
+    
+    def __eq__(self, other): 
+        if isinstance(other, Student): 
+            return hash(self) == hash(other)
+        return False
+
 
 @dataclass(kw_only=True, frozen=True)
 class StudentGroup(BaseModel):
@@ -140,6 +164,14 @@ class StudentGroup(BaseModel):
     created_by: str
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
+    def __hash__(self): 
+        return hash((self.group_id, self.student_id)) 
+    
+    def __eq__(self, other): 
+        if isinstance(other, StudentGroup): 
+            return hash(self) == hash(other)
+        return False
+
 
 @dataclass(kw_only=True, frozen=True)
 class HostGroup(BaseModel):
@@ -147,6 +179,14 @@ class HostGroup(BaseModel):
 
     host_id: str
     group_id: str
+
+    def __hash__(self): 
+        return hash((self.host_id, self.group_id)) 
+    
+    def __eq__(self, other): 
+        if isinstance(other, HostGroup): 
+            return hash(self) == hash(other)
+        return False
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -268,7 +308,7 @@ class Attempt(BaseModel):
     )
     started_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
     submitted_at: str | None = field(
-        default_factory=nullable_field(lambda: str(fake.date_time_this_year))
+        default_factory=nullable_field(lambda: str(fake.date_time_this_year()))
     )
 
 
@@ -311,6 +351,14 @@ class ClosedAnswerChoice(BaseModel):
 
     closed_answer_id: str
     choice_id: str
+
+    def __hash__(self): 
+        return hash((self.closed_answer_id, self.choice_id)) 
+    
+    def __eq__(self, other): 
+        if isinstance(other, ClosedAnswerChoice): 
+            return hash(self) == hash(other)
+        return False
 
 
 @dataclass(kw_only=True, frozen=True)

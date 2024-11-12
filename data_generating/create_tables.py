@@ -1,7 +1,7 @@
 from data_generating.seeders.models_seeder import *
 from data_generating.utils import generate_insert_query
 
-num_records = 2
+num_records = 1_000
 
 administrators = generate_administrator_seeder(num_records)
 faculties = generate_faculty_seeder(num_records)
@@ -14,16 +14,16 @@ courses = generate_course_seeder(num_records, terms, administrators)
 college_terms = generate_college_term_seeder(num_records)
 degrees = generate_degree_seeder(num_records)
 hosts = generate_host_seeder(num_records, degrees)
-groups = generate_group_seeder(num_records, courses, college_terms, administrators)
+groups = generate_group_seeder(num_records, courses, college_terms, hosts)
 students = generate_student_seeder(num_records)
 
 commenters = list(map(lambda x: (x, 3), students)) + list(map(lambda x: (x, 2), hosts))
 
 student_groups = generate_student_group_seeder(
-    num_records, groups, students, administrators
+    num_records, groups, students, hosts 
 )
 host_groups = generate_host_group_seeder(num_records, hosts, groups)
-host_courses = generate_host_course_seeder(num_records, hosts, courses, administrators)
+host_courses = generate_host_course_seeder(num_records, hosts, courses, hosts)
 entries = generate_entry_seeder(num_records, groups, hosts)
 comment_of_entries = generate_comment_of_entry_seeder(num_records, commenters, entries)
 entry_files = generate_entry_file_seeder(num_records, entries)

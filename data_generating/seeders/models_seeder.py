@@ -69,7 +69,7 @@ def generate_host_seeder(
     return [
         Host(
             degree=(
-                random.choice(degrees).name
+                random.choice(degrees).id
                 if random.choice(degrees) is not None
                 else None
             )
@@ -82,7 +82,7 @@ def generate_group_seeder(
     num_records: int,
     courses: Sequence[Course],
     college_terms: Sequence[CollegeTerm],
-    creators: Sequence[User | None],
+    creators: Sequence[Host | None],
 ) -> Sequence[Group]:
     return [
         Group(
@@ -119,8 +119,8 @@ def generate_student_group_seeder(
 ) -> Sequence[StudentGroup]:
     return unique(
         lambda: StudentGroup(
-            group_id=random.choice(students).id,
-            student_id=random.choice(groups).id,
+            group_id=random.choice(groups).id,
+            student_id=random.choice(students).id,
             created_by=random.choice(creators).id,
         ),
         num_records,
@@ -133,8 +133,8 @@ def generate_host_group_seeder(
     return unique(
         lambda: 
             HostGroup(
-                host_id=random.choice(groups).id,
-                group_id=random.choice(hosts).id,
+                host_id=random.choice(hosts).id,
+                group_id=random.choice(groups).id,
             ), 
             num_records
     )
@@ -144,7 +144,7 @@ def generate_host_course_seeder(
     num_records: int,
     hosts: Sequence[Host],
     courses: Sequence[Course],
-    creators: Sequence[User | None],
+    creators: Sequence[Host | None],
 ) -> Sequence[HostCourse]:
     return [
         HostCourse(
