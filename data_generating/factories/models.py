@@ -5,7 +5,7 @@ from typing import List, Sequence
 
 from data_generating.factories import fake
 from data_generating.factories.abstact import *
-from data_generating.factories.utils import nullable_field, make_hashable
+from data_generating.factories.utils import make_hashable, nullable_field
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -20,7 +20,8 @@ class User(BaseModel):
         default_factory=lambda: random.choices([True, False], weights=[75, 25])[0]
     )
     degree: str | None
-    profile_type: int # 0 - administrator, 1 - host, 2 - student
+    profile_type: int  # 0 - administrator, 1 - host, 2 - student
+
 
 @dataclass(kw_only=True, frozen=True)
 class Faculty(BaseModel):
@@ -57,9 +58,7 @@ class Term(BaseModel):
     _TABLE_NAME: str = "terms"
 
     field_of_study_id: str
-    term_number: int = field(
-        default_factory=lambda: fake.random_int(min=1, max=15)
-    )
+    term_number: int = field(default_factory=lambda: fake.random_int(min=1, max=15))
     created_by: str | None
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
@@ -81,7 +80,9 @@ class CollegeTerm(BaseModel):
 
     # TODO: definitely use better generators here
     start_date: str = field(default_factory=lambda: str(fake.date_time_this_year()))
-    end_date: str | None = field(default_factory=lambda: str(fake.date_time_this_year()))
+    end_date: str | None = field(
+        default_factory=lambda: str(fake.date_time_this_year())
+    )
 
 
 @dataclass(kw_only=True, frozen=True)

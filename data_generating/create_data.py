@@ -19,18 +19,20 @@ terms = generate_term_seeder(num_records, fields_of_study, administrators)
 courses = generate_course_seeder(num_records, terms, administrators)
 college_terms = generate_college_term_seeder(num_records)
 groups = generate_group_seeder(num_records, courses, college_terms, hosts)
-student_groups = generate_student_group_seeder(
-    num_records, groups, students, hosts 
-)
+student_groups = generate_student_group_seeder(num_records, groups, students, hosts)
 host_groups = generate_host_group_seeder(num_records, hosts, groups)
 host_courses = generate_host_course_seeder(num_records, hosts, courses, hosts)
 entries = generate_entry_seeder(num_records, groups, hosts)
-comment_of_entries = generate_comment_of_entry_seeder(num_records, student_and_hosts, entries)
+comment_of_entries = generate_comment_of_entry_seeder(
+    num_records, student_and_hosts, entries
+)
 entry_files = generate_entry_file_seeder(num_records, entries)
 exercises = generate_exercise_seeder(num_records, entries)
 solutions = generate_solution_seeder(num_records, exercises, students)
 solution_files = generate_solution_file_seeder(num_records, solutions)
-solution_comments = generate_solution_comment_seeder(num_records, student_and_hosts, solutions)
+solution_comments = generate_solution_comment_seeder(
+    num_records, student_and_hosts, solutions
+)
 tests = generate_test_seeder(num_records, entries)
 attempts = generate_attempt_seeder(num_records, students, tests)
 open_questions = generate_open_question_seeder(num_records, tests)

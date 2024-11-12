@@ -1,5 +1,5 @@
 import random
-from typing import Callable, TypeVar, Sequence, Type, Iterable
+from typing import Callable, Iterable, Sequence, Type, TypeVar
 
 T = TypeVar("T")
 

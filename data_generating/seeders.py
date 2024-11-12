@@ -1,4 +1,4 @@
-from typing import Sequence, Callable
+from typing import Callable, Sequence
 
 from data_generating.factories.models import *
 from data_generating.factories.models import Course
@@ -12,26 +12,37 @@ def generate_user(
     student_chance_of_degree: float,
     administrator_percentage: float,
     host_percentage: float,
-    student_percentage: float ,
-    ):
+    student_percentage: float,
+):
 
-    profile_type = random.choices( [0, 1, 2], weights=[administrator_percentage, host_percentage, student_percentage])[0]
+    profile_type = random.choices(
+        [0, 1, 2],
+        weights=[administrator_percentage, host_percentage, student_percentage],
+    )[0]
 
     degree = None
 
     match profile_type:
         case 0:
-            degree=random.choice(degrees).id if random.random() > (1-administrator_chance_of_degree) else None
+            degree = (
+                random.choice(degrees).id
+                if random.random() > (1 - administrator_chance_of_degree)
+                else None
+            )
         case 1:
-            degree=random.choice(degrees).id if random.random() > (1-host_chance_of_degree) else None
+            degree = (
+                random.choice(degrees).id
+                if random.random() > (1 - host_chance_of_degree)
+                else None
+            )
         case 2:
-            degree=random.choice(degrees).id if random.random() > (1-student_chance_of_degree) else None
+            degree = (
+                random.choice(degrees).id
+                if random.random() > (1 - student_chance_of_degree)
+                else None
+            )
 
     return User(degree=degree, profile_type=profile_type)
-
-    
-
-
 
 
 def generate_users_seeder(
@@ -45,7 +56,15 @@ def generate_users_seeder(
     student_chance_of_degree: float = 0.03,
 ) -> Sequence[User]:
     return unique(
-        lambda: generate_user(degrees, administrator_chance_of_degree, host_chance_of_degree, student_chance_of_degree, administrator_percentage, host_percentage, student_percentage),
+        lambda: generate_user(
+            degrees,
+            administrator_chance_of_degree,
+            host_chance_of_degree,
+            student_chance_of_degree,
+            administrator_percentage,
+            host_percentage,
+            student_percentage,
+        ),
         num_records,
     )
 

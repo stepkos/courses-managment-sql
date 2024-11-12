@@ -1,11 +1,10 @@
-from typing import Callable, Sequence
-from data_generating.factories.abstact import BaseModel
-
 from dataclasses import fields
+from typing import Callable, Sequence
 
 from pypika import Query, Table
 from pypika.terms import ValueWrapper
 
+from data_generating.factories.abstact import BaseModel
 from data_generating.seeders import *
 
 
@@ -31,4 +30,3 @@ def unique(gen: Callable[[], BaseModel], num_records) -> Sequence:
     while len(unique_entities) < num_records:
         unique_entities.add(gen())
     return list(unique_entities)
-
