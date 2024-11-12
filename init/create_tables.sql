@@ -138,7 +138,8 @@ CREATE TABLE IF NOT EXISTS public.groups (
 );
 
 CREATE TABLE IF NOT EXISTS public.students (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    index INTEGER CHECK (100000 <= index AND index <= 999999)
 ) INHERITS (public.users);
 
 ALTER TABLE public.students
