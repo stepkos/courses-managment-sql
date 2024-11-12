@@ -13,7 +13,7 @@ def generate_user(
     administrator_percentage: float,
     host_percentage: float,
     student_percentage: float,
-):
+) -> User:
 
     profile_type = random.choices(
         [0, 1, 2],
@@ -45,10 +45,6 @@ def generate_user(
     return User(degree=degree, profile_type=profile_type)
 
     
-
-
-
-
 def generate_users_seeder(
     num_records: int,
     degrees: list[Degree],
