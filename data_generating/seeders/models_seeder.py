@@ -5,8 +5,23 @@ from data_generating.factories.models import Course
 from data_generating.seeders.utils import unique
 
 
-def generate_administrator_seeder(num_records: int) -> Sequence[Administrator]:
-    return [Administrator() for _ in range(num_records)]
+def generate_users_seeder(
+    num_records: int,
+    degrees: list[Degree],
+    administrator_percentage: float = 0.15,
+    host_percentage: float = 0.35,
+    student_percentage: float = 0.5,
+) -> Sequence[User]:
+    return unique(
+        lambda: User(
+            degree=random.choice(degrees).id,
+            profile_type=random.choices(
+                [0, 1, 2],
+                weights=[administrator_percentage, host_percentage, student_percentage],
+            )[0],
+        ),
+        num_records,
+    )
 
 
 def generate_faculty_seeder(num_records: int) -> Sequence[Faculty]:
@@ -16,7 +31,7 @@ def generate_faculty_seeder(num_records: int) -> Sequence[Faculty]:
 def generate_faculty_administrator_seeder(
     num_records: int,
     faculties: Sequence[Faculty],
-    administrators: Sequence[Administrator],
+    administrators: Sequence[User],
 ) -> Sequence[FacultyAdministrator]:
     return unique(
         lambda: FacultyAdministrator(
@@ -63,26 +78,11 @@ def generate_degree_seeder(num_records: int) -> Sequence[Degree]:
     return [Degree() for _ in range(num_records)]
 
 
-def generate_host_seeder(
-    num_records: int, degrees: Sequence[Degree | None]
-) -> Sequence[Host]:
-    return [
-        Host(
-            degree=(
-                random.choice(degrees).id
-                if random.choice(degrees) is not None
-                else None
-            )
-        )
-        for _ in range(num_records)
-    ]
-
-
 def generate_group_seeder(
     num_records: int,
     courses: Sequence[Course],
     college_terms: Sequence[CollegeTerm],
-    creators: Sequence[Host | None],
+    creators: Sequence[User | None],
 ) -> Sequence[Group]:
     return [
         Group(
@@ -99,22 +99,22 @@ def generate_group_seeder(
 
 
 def generate_course_seeder(
-    num_records: int, terms: Sequence[Term], creators: Sequence[Administrator | None]
+    num_records: int,
+    terms: Sequence[Term],
+    creators_administrators: Sequence[User | None],
 ) -> Sequence[Course]:
     return [
-        Course(term_id=random.choice(terms).id, created_by=random.choice(creators).id)
+        Course(
+            term_id=random.choice(terms).id,
+            created_by=random.choice(creators_administrators).id,
+        )
         for _ in range(num_records)
     ]
-
-
-def generate_student_seeder(num_records: int) -> Sequence[Student]:
-    return [Student() for _ in range(num_records)]
-
 
 def generate_student_group_seeder(
     num_records: int,
     groups: Sequence[Group],
-    students: Sequence[Student],
+    students: Sequence[User],
     creators: Sequence[User],
 ) -> Sequence[StudentGroup]:
     return unique(
@@ -128,23 +128,22 @@ def generate_student_group_seeder(
 
 
 def generate_host_group_seeder(
-    num_records: int, hosts: Sequence[Host], groups: Sequence[Group]
+    num_records: int, hosts: Sequence[User], groups: Sequence[Group]
 ) -> Sequence[HostGroup]:
     return unique(
-        lambda: 
-            HostGroup(
-                host_id=random.choice(hosts).id,
-                group_id=random.choice(groups).id,
-            ), 
-            num_records
+        lambda: HostGroup(
+            host_id=random.choice(hosts).id,
+            group_id=random.choice(groups).id,
+        ),
+        num_records,
     )
 
 
 def generate_host_course_seeder(
     num_records: int,
-    hosts: Sequence[Host],
+    hosts: Sequence[User],
     courses: Sequence[Course],
-    creators: Sequence[Host | None],
+    creators: Sequence[User | None],
 ) -> Sequence[HostCourse]:
     return [
         HostCourse(
@@ -161,7 +160,7 @@ def generate_host_course_seeder(
 
 
 def generate_entry_seeder(
-    num_records: int, groups: Sequence[Group | None], hosts: Sequence[Host | None]
+    num_records: int, groups: Sequence[Group | None], hosts: Sequence[User | None]
 ) -> Sequence[Entry]:
     return [
         Entry(
@@ -177,12 +176,11 @@ def generate_entry_seeder(
 
 
 def generate_comment_of_entry_seeder(
-    num_records: int, commenters: Sequence[tuple[User, int]], entries: Sequence[Entry]
+    num_records: int, commenters: Sequence[User], entries: Sequence[Entry]
 ) -> Sequence[CommentOfEntry]:
     return [
         CommentOfEntry(
-            commenter_id=random.choice(commenters)[0].id,
-            commenter_type=random.choice(commenters)[1],
+            user_id=random.choice(commenters).id,
             entry_id=random.choice(entries).id,
         )
         for _ in range(num_records)
@@ -202,7 +200,7 @@ def generate_entry_file_seeder(
 
 
 def generate_solution_seeder(
-    num_records: int, exercises: Sequence[Exercise], students: Sequence[Student]
+    num_records: int, exercises: Sequence[Exercise], students: Sequence[User]
 ) -> Sequence[Solution]:
     return [
         Solution(
@@ -224,17 +222,12 @@ def generate_solution_file_seeder(
 
 def generate_solution_comment_seeder(
     num_records: int,
-    commenters: Sequence[tuple[User, int] | None],
+    commenters: Sequence[User | None],
     solutions: Sequence[Solution],
 ) -> Sequence[SolutionComment]:
     return [
         SolutionComment(
-            commenter_id=(
-                random.choice(commenters)[0].id
-                if random.choice(commenters) is not None
-                else None
-            ),
-            commenter_type=random.choice(commenters)[1],
+            user_id=(user.id) if (user := random.choice(commenters)) else None,
             solution_id=random.choice(solutions).id,
         )
         for _ in range(num_records)
@@ -246,7 +239,7 @@ def generate_test_seeder(num_records: int, entries: Sequence[Entry]) -> Sequence
 
 
 def generate_attempt_seeder(
-    num_records: int, students: Sequence[Student], tests: Sequence[Test]
+    num_records: int, students: Sequence[User], tests: Sequence[Test]
 ) -> Sequence[Attempt]:
     return [
         Attempt(student_id=random.choice(students).id, test_id=random.choice(tests).id)

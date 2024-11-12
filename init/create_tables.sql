@@ -17,31 +17,20 @@ DROP TABLE IF EXISTS public.entries;
 DROP TABLE IF EXISTS public.host_courses;
 DROP TABLE IF EXISTS public.host_groups;
 DROP TABLE IF EXISTS public.student_groups;
-DROP TABLE IF EXISTS public.students;
 DROP TABLE IF EXISTS public.groups;
-DROP TABLE IF EXISTS public.hosts;
-DROP TABLE IF EXISTS public.degrees;
 DROP TABLE IF EXISTS public.college_terms;
 DROP TABLE IF EXISTS public.courses;
 DROP TABLE IF EXISTS public.terms;
 DROP TABLE IF EXISTS public.fields_of_study;
 DROP TABLE IF EXISTS public.faculty_administrators;
 DROP TABLE IF EXISTS public.faculties;
-DROP TABLE IF EXISTS public.administrators;
 DROP TABLE IF EXISTS public.users;
 DROP TABLE IF EXISTS public.answers;
 DROP TABLE IF EXISTS public.questions;
 DROP TABLE IF EXISTS public.files;
+DROP TABLE IF EXISTS public.degrees;
 
 -- ABSTRACT TABLES
-
-CREATE TABLE IF NOT EXISTS public.users (
-    first_name VARCHAR(50) NOT NULL,
-    surname VARCHAR(50) NOT NULL,
-    email TEXT CHECK (email ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'),
-    password TEXT NOT NULL,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE
-);
 
 CREATE TABLE IF NOT EXISTS public.answers (
     points INTEGER,
@@ -60,13 +49,22 @@ CREATE TABLE IF NOT EXISTS public.files (
 
 -- CONCRETE TABLES
 
-CREATE TABLE IF NOT EXISTS public.administrators (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    admin_level VARCHAR(50)
-) INHERITS (public.users);
+CREATE TABLE IF NOT EXISTS public.degrees (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL
+);
 
-ALTER TABLE public.administrators
-ADD CONSTRAINT unique_email_in_admin UNIQUE (email);
+CREATE TABLE IF NOT EXISTS public.users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    first_name VARCHAR(50) NOT NULL,
+    surname VARCHAR(50) NOT NULL,
+    email TEXT CHECK (email ~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'),
+    password TEXT NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    degree UUID REFERENCES degrees(id) ON DELETE SET NULL,
+    profile_type INTEGER NOT NULL, -- 0 - administrator, 1 - host, 2 - student
+    CONSTRAINT unique_user_email UNIQUE (email)
+);
 
 CREATE TABLE IF NOT EXISTS public.faculties (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -79,7 +77,7 @@ CREATE TABLE IF NOT EXISTS public.faculties (
 CREATE TABLE IF NOT EXISTS public.faculty_administrators (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     faculty_id UUID NOT NULL REFERENCES faculties(id) ON DELETE CASCADE,
-    administrator_id UUID NOT NULL REFERENCES administrators(id) ON DELETE CASCADE,
+    administrator_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT unique_faculty_administrator UNIQUE (faculty_id, administrator_id)
 );
 
@@ -89,7 +87,7 @@ CREATE TABLE IF NOT EXISTS public.fields_of_study (
     faculty_id UUID NOT NULL REFERENCES faculties(id),
     description TEXT NOT NULL DEFAULT '',
     start_year INTEGER NOT NULL,
-    created_by UUID REFERENCES administrators(id) ON DELETE SET NULL,
+    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -97,7 +95,7 @@ CREATE TABLE IF NOT EXISTS public.terms (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     field_of_study_id UUID NOT NULL REFERENCES fields_of_study(id),
     term_number INTEGER NOT NULL,
-    created_by UUID REFERENCES administrators(id) ON DELETE SET NULL,
+    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -106,7 +104,7 @@ CREATE TABLE IF NOT EXISTS public.courses (
     term_id UUID NOT NULL REFERENCES terms(id),
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL DEFAULT '',
-    created_by UUID REFERENCES administrators(id),
+    created_by UUID REFERENCES users(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -116,16 +114,6 @@ CREATE TABLE IF NOT EXISTS public.college_terms (
     end_date TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS public.degrees (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS public.hosts (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    degree UUID REFERENCES degrees(id) ON DELETE SET NULL
-) INHERITS (public.users);
-
 CREATE TABLE IF NOT EXISTS public.groups (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     course_id UUID NOT NULL REFERENCES courses(id),
@@ -133,40 +121,32 @@ CREATE TABLE IF NOT EXISTS public.groups (
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL DEFAULT '',
     image TEXT CHECK (image ~* '^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$' OR image IS NULL),
-    created_by UUID REFERENCES hosts(id) ON DELETE SET NULL,
+    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-
-CREATE TABLE IF NOT EXISTS public.students (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    index INTEGER CHECK (100000 <= index AND index <= 999999)
-) INHERITS (public.users);
-
-ALTER TABLE public.students
-ADD CONSTRAINT unique_email_in_students UNIQUE (email);
 
 CREATE TABLE IF NOT EXISTS public.student_groups (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     group_id UUID NOT NULL REFERENCES groups(id),
-    student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
-    created_by UUID NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
+    student_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT unique_student_group UNIQUE (student_id, group_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.host_groups (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    host_id UUID NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
+    host_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     group_id UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
     CONSTRAINT unique_host_group UNIQUE (host_id, group_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.host_courses (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    host_id UUID NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
+    host_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
     is_course_admin BOOLEAN NOT NULL,
-    created_by UUID NOT NULL REFERENCES hosts(id),
+    created_by UUID NOT NULL REFERENCES users(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -177,13 +157,12 @@ CREATE TABLE IF NOT EXISTS public.entries (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     content TEXT NOT NULL,
-    host_id UUID REFERENCES hosts(id) ON DELETE SET NULL
+    host_id UUID REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.comment_of_entries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    commenter_id UUID,
-    commenter_type INTEGER,
+    user_id UUID,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     entry_id UUID NOT NULL REFERENCES entries(id) ON DELETE CASCADE
@@ -203,7 +182,7 @@ CREATE TABLE IF NOT EXISTS public.exercises (
 CREATE TABLE IF NOT EXISTS public.solutions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     exercise_id UUID NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
-    student_id UUID REFERENCES students(id) ON DELETE SET NULL,
+    student_id UUID REFERENCES users(id) ON DELETE SET NULL,
     grade NUMERIC(4, 2) NOT NULL CHECK (grade >= 0.00 AND grade <= 10.00),
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     text_answer TEXT NOT NULL DEFAULT ''
@@ -216,8 +195,7 @@ CREATE TABLE IF NOT EXISTS public.solution_files (
 
 CREATE TABLE IF NOT EXISTS public.solution_comments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    commenter_id UUID,
-    commenter_type INTEGER,
+    user_id UUID,
     solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -239,7 +217,7 @@ CREATE TABLE IF NOT EXISTS public.tests (
 
 CREATE TABLE IF NOT EXISTS public.attempts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    student_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     test_id UUID NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
     score NUMERIC(5,2) CHECK (score >= 0.00 AND score <= 100.00 OR score IS NULL),
     started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -249,13 +227,13 @@ CREATE TABLE IF NOT EXISTS public.attempts (
 CREATE TABLE IF NOT EXISTS public.open_questions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     test_id UUID NOT NULL REFERENCES tests(id) ON DELETE CASCADE
-) INHERITS (public.question);
+) INHERITS (public.questions);
 
 CREATE TABLE IF NOT EXISTS public.closed_questions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     test_id UUID NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
     is_multiple BOOLEAN NOT NULL 
-) INHERITS (public.question);
+) INHERITS (public.questions);
 
 CREATE TABLE IF NOT EXISTS public.choices (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

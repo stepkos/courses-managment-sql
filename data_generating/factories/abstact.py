@@ -17,17 +17,6 @@ class BaseModel(ABC):
 
 
 @dataclass(kw_only=True, frozen=True)
-class User(BaseModel, ABC):
-    first_name: str = field(default_factory=fake.first_name)
-    surname: str = field(default_factory=fake.last_name)
-    email: str = field(default_factory=fake.email)
-    password: str = field(default_factory=lambda: fake.password(length=12))
-    is_active: bool = field(
-        default_factory=lambda: random.choices([True, False], weights=[75, 25])[0]
-    )
-
-
-@dataclass(kw_only=True, frozen=True)
 class Answer(BaseModel):
     _TABLE_NAME: str = "answers"
 

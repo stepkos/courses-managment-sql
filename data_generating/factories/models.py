@@ -101,13 +101,6 @@ class Degree(BaseModel):
 
 
 @dataclass(kw_only=True, frozen=True)
-class Host(User):
-    _TABLE_NAME: str = "hosts"
-
-    degree: str | None
-
-
-@dataclass(kw_only=True, frozen=True)
 class Group(BaseModel):
     _TABLE_NAME: str = "groups"
 
@@ -178,8 +171,7 @@ class Entry(BaseModel):
 class CommentOfEntry(BaseModel):
     _TABLE_NAME: str = "comment_of_entries"
 
-    commenter_id: str
-    commenter_type: int
+    user_id: str
     content: str = field(default_factory=fake.text)
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
     entry_id: str
@@ -226,8 +218,7 @@ class SolutionFile(File):
 class SolutionComment(BaseModel):
     _TABLE_NAME: str = "solution_comments"
 
-    commenter_id: str | None
-    commenter_type: int | None
+    user_id: str | None
     solution_id: str
     content: str = field(default_factory=fake.text)
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
@@ -273,14 +264,14 @@ class Attempt(BaseModel):
 
 
 @dataclass(kw_only=True, frozen=True)
-class OpenQuestion(BaseModel):
+class OpenQuestion(Question):
     _TABLE_NAME: str = "open_questions"
 
     test_id: str
 
 
 @dataclass(kw_only=True, frozen=True)
-class ClosedQuestion(BaseModel):
+class ClosedQuestion(Question):
     _TABLE_NAME: str = "closed_questions"
 
     test_id: str
