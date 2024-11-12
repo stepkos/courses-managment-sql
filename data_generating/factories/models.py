@@ -9,7 +9,7 @@ from data_generating.factories.utils import make_hashable, nullable_field
 
 
 @dataclass(kw_only=True, frozen=True)
-class User(BaseModel, make_hashable("email")):
+class User(BaseModel):
     _TABLE_NAME: str = "users"
 
     first_name: str = field(default_factory=fake.first_name)
@@ -21,6 +21,14 @@ class User(BaseModel, make_hashable("email")):
     )
     degree: str | None
     profile_type: int  # 0 - administrator, 1 - host, 2 - student
+
+    def __hash__(self):
+        return hash(self.email)
+
+    def __eq__(self, other):
+        if isinstance(other, User):
+            return hash(self) == hash(other)
+        return False
 
 
 @dataclass(kw_only=True, frozen=True)
