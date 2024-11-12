@@ -44,6 +44,10 @@ def generate_user(
 
     return User(degree=degree, profile_type=profile_type)
 
+    
+
+
+
 
 def generate_users_seeder(
     num_records: int,
@@ -53,7 +57,7 @@ def generate_users_seeder(
     student_percentage: float = 0.5,
     administrator_chance_of_degree: float = 0.9,
     host_chance_of_degree: float = 1,
-    student_chance_of_degree: float = 0.03,
+    student_chance_of_degree: float = 0.02,
 ) -> Sequence[User]:
     return unique(
         lambda: generate_user(
@@ -106,8 +110,8 @@ def generate_field_of_study_seeder(
         FieldOfStudy(
             faculty_id=random.choice(faculties).id,
             created_by=(
-                random.choice(creators).id
-                if random.choice(creators) is not None
+                c.id
+                if (c := random.choice(creators)) is not None
                 else None
             ),
         )
@@ -134,8 +138,8 @@ def generate_group_seeder(
             course_id=random.choice(courses).id,
             college_term_id=random.choice(college_terms).id,
             created_by=(
-                random.choice(creators).id
-                if random.choice(creators) is not None
+                c.id
+                if (c := random.choice(creators)) is not None
                 else None
             ),
         )
@@ -151,11 +155,10 @@ def generate_course_seeder(
     return [
         Course(
             term_id=random.choice(terms).id,
-            created_by=random.choice(creators_administrators).id,
+            created_by= c.id if (c := random.choice(creators_administrators)) else None
         )
         for _ in range(num_records)
     ]
-
 
 def generate_student_group_seeder(
     num_records: int,
@@ -196,8 +199,8 @@ def generate_host_course_seeder(
             host_id=random.choice(hosts).id,
             course_id=random.choice(courses).id,
             created_by=(
-                random.choice(creators).id
-                if random.choice(creators) is not None
+                c.id
+                if (c := random.choice(creators)) is not None
                 else None
             ),
         )
@@ -211,10 +214,10 @@ def generate_entry_seeder(
     return [
         Entry(
             group_id=(
-                random.choice(groups).id if random.choice(groups) is not None else None
+                c.id if (c := random.choice(groups)) is not None else None
             ),
             host_id=(
-                random.choice(hosts).id if random.choice(hosts) is not None else None
+                c.id if (c := random.choice(hosts)) is not None else None
             ),
         )
         for _ in range(num_records)
@@ -273,7 +276,7 @@ def generate_solution_comment_seeder(
 ) -> Sequence[SolutionComment]:
     return [
         SolutionComment(
-            user_id=user.id if (user := random.choice(commenters)) else None,
+            user_id=(user.id) if (user := random.choice(commenters)) else None,
             solution_id=random.choice(solutions).id,
         )
         for _ in range(num_records)
