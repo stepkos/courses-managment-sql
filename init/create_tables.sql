@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS public.degrees (
 
 CREATE TABLE IF NOT EXISTS public.hosts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    degree INTEGER REFERENCES degrees(id) ON DELETE SET NULL
+    degree UUID REFERENCES degrees(id) ON DELETE SET NULL
 ) INHERITS (public.users);
 
 CREATE TABLE IF NOT EXISTS public.groups (
