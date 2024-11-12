@@ -2,7 +2,7 @@ from data_generating.seeders import *
 from data_generating.utils import generate_insert_query
 
 num_records = 1_000
-nulls = int(0.05 * num_records)
+nulls = 0
 
 degrees = generate_degree_seeder(num_records)
 users = generate_users_seeder(3 * num_records, list(degrees))
@@ -25,7 +25,7 @@ student_groups = generate_student_group_seeder(
 )
 host_groups = generate_host_group_seeder(num_records, hosts, groups)
 host_courses = generate_host_course_seeder(num_records, hosts, courses, hosts + nulls * [None])
-entries = generate_entry_seeder(num_records, groups + nulls * [None], hosts + groups + nulls * [None])
+entries = generate_entry_seeder(num_records, groups + nulls * [None], hosts + nulls * [None])
 comment_of_entries = generate_comment_of_entry_seeder(num_records, student_and_hosts, entries)
 entry_files = generate_entry_file_seeder(num_records, entries)
 exercises = generate_exercise_seeder(num_records, entries)

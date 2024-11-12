@@ -42,11 +42,20 @@ class Faculty(BaseModel):
 
 
 @dataclass(kw_only=True, frozen=True)
-class FacultyAdministrator(BaseModel, make_hashable("faculty_id", "administrator_id")):
+class FacultyAdministrator(BaseModel):
     _TABLE_NAME: str = "faculty_administrators"
 
     faculty_id: str
     administrator_id: str
+
+    def __hash__(self):
+        return hash((self.faculty_id, self.administrator_id))
+
+    def __eq__(self, other):
+        if isinstance(other, FacultyAdministrator):
+            return hash(self) == hash(other)
+        return False
+
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -118,7 +127,7 @@ class Group(BaseModel):
 
 
 @dataclass(kw_only=True, frozen=True)
-class StudentGroup(BaseModel, make_hashable("group_id", "student_id")):
+class StudentGroup(BaseModel):
     _TABLE_NAME: str = "student_groups"
 
     group_id: str
@@ -126,14 +135,31 @@ class StudentGroup(BaseModel, make_hashable("group_id", "student_id")):
     created_by: str
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
+    def __hash__(self):
+        return hash((self.group_id, self.student_id))
+
+    def __eq__(self, other):
+        if isinstance(other, StudentGroup):
+            return hash(self) == hash(other)
+        return False
+
+
+
 
 @dataclass(kw_only=True, frozen=True)
-class HostGroup(BaseModel, make_hashable("host_id", "group_id")):
+class HostGroup(BaseModel):
     _TABLE_NAME: str = "host_groups"
 
     host_id: str
     group_id: str
 
+    def __hash__(self):
+        return hash((self.host_id, self.group_id))
+
+    def __eq__(self, other):
+        if isinstance(other, FacultyAdministrator):
+            return hash(self) == hash(other)
+        return False
 
 @dataclass(kw_only=True, frozen=True)
 class HostCourse(BaseModel):
@@ -146,6 +172,8 @@ class HostCourse(BaseModel):
     )
     created_by: str | None
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
+
+
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -290,11 +318,20 @@ class ClosedAnswer(BaseModel):
 
 
 @dataclass(kw_only=True, frozen=True)
-class ClosedAnswerChoice(BaseModel, make_hashable("closed_answer_id", "choice_id")):
+class ClosedAnswerChoice(BaseModel):
     _TABLE_NAME: str = "closed_answer_choices"
 
     closed_answer_id: str
     choice_id: str
+
+    def __hash__(self):
+        return hash((self.closed_answer_id, self.choice_id))
+
+    def __eq__(self, other):
+        if isinstance(other, ClosedAnswerChoice):
+            return hash(self) == hash(other)
+        return False
+
 
 
 @dataclass(kw_only=True, frozen=True)
