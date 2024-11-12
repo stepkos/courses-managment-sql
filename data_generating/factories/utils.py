@@ -6,9 +6,9 @@ T = TypeVar("T")
 
 #TODO probability is not used
 def nullable_field(
-    generator: Callable[[], T], probability_of_none: float = 0.5
+    generator: Callable[[], T], probability_of_none: float = 0.3
 ) -> Callable[[], T | None]:
-    return lambda: generator() if random.choice([True, False]) else None
+    return lambda: generator() if random.random() < probability_of_none else None
 
 
 def make_hashable(*fields: str) -> Type:
