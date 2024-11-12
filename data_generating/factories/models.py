@@ -8,7 +8,7 @@ from data_generating.factories.abstact import *
 from data_generating.factories.utils import nullable_field
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Administrator(User):
     _TABLE_NAME: str = "administrators"
 
@@ -27,7 +27,7 @@ class Administrator(User):
     )
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Faculty(BaseModel):
     _TABLE_NAME: str = "faculties"
 
@@ -37,7 +37,7 @@ class Faculty(BaseModel):
     website: str = field(default_factory=fake.url)
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class FacultyAdministrator(BaseModel):
     _TABLE_NAME: str = "faculty_administrators"
 
@@ -45,7 +45,7 @@ class FacultyAdministrator(BaseModel):
     administrator_id: str
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class FieldOfStudy(BaseModel):
     _TABLE_NAME: str = "fields_of_study"
 
@@ -57,7 +57,7 @@ class FieldOfStudy(BaseModel):
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Term(BaseModel):
     _TABLE_NAME: str = "terms"
 
@@ -69,7 +69,7 @@ class Term(BaseModel):
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Course(BaseModel):
     _TABLE_NAME: str = "courses"
 
@@ -80,7 +80,7 @@ class Course(BaseModel):
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class CollegeTerm(BaseModel):
     _TABLE_NAME: str = "college_terms"
 
@@ -89,7 +89,7 @@ class CollegeTerm(BaseModel):
     end_date: str | None = field(default_factory=lambda: str(fake.date_time_this_year))
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Degree(BaseModel):
     _TABLE_NAME: str = "degrees"
 
@@ -100,14 +100,14 @@ class Degree(BaseModel):
     )
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Host(User):
     _TABLE_NAME: str = "hosts"
 
     degree: str | None
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Group(BaseModel):
     _TABLE_NAME: str = "groups"
 
@@ -120,7 +120,7 @@ class Group(BaseModel):
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Student(User):
     _TABLE_NAME: str = "students"
 
@@ -131,7 +131,7 @@ class Student(User):
     )
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class StudentGroup(BaseModel):
     _TABLE_NAME: str = "student_groups"
 
@@ -141,7 +141,7 @@ class StudentGroup(BaseModel):
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class HostGroup(BaseModel):
     _TABLE_NAME: str = "host_groups"
 
@@ -149,7 +149,7 @@ class HostGroup(BaseModel):
     group_id: str
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class HostCourse(BaseModel):
     _TABLE_NAME: str = "host_courses"
 
@@ -162,7 +162,7 @@ class HostCourse(BaseModel):
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Entry(BaseModel):
     _TABLE_NAME: str = "entries"
 
@@ -174,7 +174,7 @@ class Entry(BaseModel):
     host_id: str | None
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class CommentOfEntry(BaseModel):
     _TABLE_NAME: str = "comment_of_entries"
 
@@ -185,14 +185,14 @@ class CommentOfEntry(BaseModel):
     entry_id: str
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class EntryFile(File):
     _TABLE_NAME: str = "entry_files"
 
     entry_id: str
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Exercise(BaseModel):
     _TABLE_NAME: str = "exercises"
 
@@ -202,7 +202,7 @@ class Exercise(BaseModel):
     )
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Solution(BaseModel):
     _TABLE_NAME: str = "solutions"
 
@@ -215,14 +215,14 @@ class Solution(BaseModel):
     text_answer: str = field(default_factory=fake.text)
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class SolutionFile(File):
     _TABLE_NAME: str = "solution_files"
 
     solution_id: str
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class SolutionComment(BaseModel):
     _TABLE_NAME: str = "solution_comments"
 
@@ -233,7 +233,7 @@ class SolutionComment(BaseModel):
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Test(BaseModel):
     _TABLE_NAME: str = "tests"
 
@@ -257,7 +257,7 @@ class Test(BaseModel):
     updated_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Attempt(BaseModel):
     _TABLE_NAME: str = "attempts"
 
@@ -272,14 +272,14 @@ class Attempt(BaseModel):
     )
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class OpenQuestion(BaseModel):
     _TABLE_NAME: str = "open_questions"
 
     test_id: str
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class ClosedQuestion(BaseModel):
     _TABLE_NAME: str = "closed_questions"
 
@@ -287,7 +287,7 @@ class ClosedQuestion(BaseModel):
     is_multiple: bool = field(default_factory=fake.boolean)
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Choice(BaseModel):
     _TABLE_NAME: str = "choices"
 
@@ -296,7 +296,7 @@ class Choice(BaseModel):
     is_correct: bool | None = field(default_factory=nullable_field(fake.boolean))
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class ClosedAnswer(BaseModel):
     _TABLE_NAME: str = "closed_answers"
 
@@ -305,7 +305,7 @@ class ClosedAnswer(BaseModel):
     submitted_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class ClosedAnswerChoice(BaseModel):
     _TABLE_NAME: str = "closed_answer_choices"
 
@@ -313,7 +313,7 @@ class ClosedAnswerChoice(BaseModel):
     choice_id: str
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class OpenAnswer(BaseModel):
     _TABLE_NAME: str = "open_answers"
 

@@ -7,7 +7,7 @@ from data_generating.factories import fake
 from data_generating.factories.utils import nullable_field
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class BaseModel(ABC):
     _TABLE_NAME: str
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
@@ -16,7 +16,7 @@ class BaseModel(ABC):
         return self._TABLE_NAME
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class User(BaseModel, ABC):
     first_name: str = field(default_factory=fake.first_name)
     surname: str = field(default_factory=fake.last_name)
@@ -27,7 +27,7 @@ class User(BaseModel, ABC):
     )
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Answer(BaseModel):
     _TABLE_NAME: str = "answers"
 
@@ -37,7 +37,7 @@ class Answer(BaseModel):
     submitted_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Question(BaseModel):
     _TABLE_NAME: str = "questions"
 
@@ -45,7 +45,7 @@ class Question(BaseModel):
     points: int = field(default_factory=lambda: fake.random_int(min=0, max=100))
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class File(BaseModel):
     _TABLE_NAME: str = "files"
 
