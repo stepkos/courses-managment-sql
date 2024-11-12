@@ -74,8 +74,8 @@ class Course(BaseModel):
     _TABLE_NAME: str = "courses"
 
     term_id: str
-    title: str = field(default_factory=fake.name)  # TODO: use better generator
-    description: str = field(default_factory=fake.text)  # TODO?: use better generator
+    title: str = field(default_factory=fake.name)
+    description: str = field(default_factory=fake.text)
     created_by: str | None
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
