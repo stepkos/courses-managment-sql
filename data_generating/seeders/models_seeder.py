@@ -4,6 +4,34 @@ from data_generating.factories.models import *
 from data_generating.factories.models import Course
 from data_generating.seeders.utils import unique
 
+def generate_user(
+    degrees: list[Degree],
+    administrator_chance_of_degree: float,
+    host_chance_of_degree: float,
+    student_chance_of_degree: float,
+    administrator_percentage: float,
+    host_percentage: float,
+    student_percentage: float ,
+    ):
+
+    profile_type = random.choices( [0, 1, 2], weights=[administrator_percentage, host_percentage, student_percentage])[0]
+
+    degree = None
+
+    match profile_type:
+        case 0:
+            degree=random.choice(degrees).id if random.random() > (1-administrator_chance_of_degree) else None
+        case 1:
+            degree=random.choice(degrees).id if random.random() > (1-host_chance_of_degree) else None
+        case 2:
+            degree=random.choice(degrees).id if random.random() > (1-student_chance_of_degree) else None
+
+    return User(degree=degree, profile_type=profile_type)
+
+    
+
+
+
 
 def generate_users_seeder(
     num_records: int,
@@ -11,15 +39,12 @@ def generate_users_seeder(
     administrator_percentage: float = 0.15,
     host_percentage: float = 0.35,
     student_percentage: float = 0.5,
+    administrator_chance_of_degree: float = 0.9,
+    host_chance_of_degree: float = 1,
+    student_chance_of_degree: float = 0.03,
 ) -> Sequence[User]:
     return unique(
-        lambda: User(
-            degree=random.choice(degrees).id,
-            profile_type=random.choices(
-                [0, 1, 2],
-                weights=[administrator_percentage, host_percentage, student_percentage],
-            )[0],
-        ),
+        lambda: generate_user(degrees, administrator_chance_of_degree, host_chance_of_degree, student_chance_of_degree, administrator_percentage, host_percentage, student_percentage),
         num_records,
     )
 
