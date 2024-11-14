@@ -157,7 +157,7 @@ class HostGroup(BaseModel):
         return hash((self.host_id, self.group_id))
 
     def __eq__(self, other):
-        if isinstance(other, FacultyAdministrator):
+        if isinstance(other, HostGroup):
             return hash(self) == hash(other)
         return False
 
