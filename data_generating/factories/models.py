@@ -64,7 +64,7 @@ class FieldOfStudy(BaseModel):
 
     name: str = field(default_factory=fake.word)
     faculty_id: str
-    description: str = ""
+    description: str = field(default_factory=lambda: ' '.join(fake.words(random.randint(5, 15))))
     start_year: int = field(default_factory=lambda: fake.random_int(min=2010, max=2025))
     created_by: str | None
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
@@ -75,7 +75,7 @@ class Term(BaseModel):
     _TABLE_NAME: str = "terms"
 
     field_of_study_id: str
-    term_number: int = field(default_factory=lambda: fake.random_int(min=1, max=15))
+    term_number: int = field(default_factory=lambda: fake.random_int(min=1, max=7))
     created_by: str | None
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
@@ -85,7 +85,7 @@ class Course(BaseModel):
     _TABLE_NAME: str = "courses"
 
     term_id: str
-    title: str = field(default_factory=fake.name)
+    title: str = field(default_factory=lambda: ' '.join(fake.words(random.randint(1, 4))))
     description: str = field(default_factory=fake.text)
     created_by: str | None
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
@@ -102,15 +102,21 @@ class CollegeTerm(BaseModel):
     )
 
 
+# @dataclass(kw_only=True, frozen=True)
+# class Degree(BaseModel):
+#     _TABLE_NAME: str = "degrees"
+
+#     name: str = field(
+#         default_factory=lambda: fake.random_element(
+#             elements=OrderedDict([("mgr", 0.75), ("dr", 0.2), ("prof", 0.05)])
+#         )
+#     )
+
 @dataclass(kw_only=True, frozen=True)
 class Degree(BaseModel):
     _TABLE_NAME: str = "degrees"
 
-    name: str = field(
-        default_factory=lambda: fake.random_element(
-            elements=OrderedDict([("mgr", 0.75), ("dr", 0.2), ("prof", 0.05)])
-        )
-    )
+    name: str
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -222,9 +228,9 @@ class Solution(BaseModel):
     exercise_id: str
     student_id: str
     grade: float = field(
-        default_factory=lambda: fake.pyfloat(min_value=0, max_value=10)
+        default_factory=lambda: random.choice([2.0, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5])
     )
-    submitted_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
+    submitted_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))  
     text_answer: str = field(default_factory=fake.text)
 
 
@@ -264,10 +270,19 @@ class Test(BaseModel):
     max_seconds_for_closed: int | None = field(
         default_factory=nullable_field(lambda: fake.pyint(min_value=0, max_value=120))
     )
-    duration_in_minutes: int = field(default_factory=lambda: fake.pyint(min_value=0))
+    duration_in_minutes: int = field(default_factory=lambda: fake.pyint(min_value=0, max_value=180))
     created_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
     updated_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
 
+from datetime import datetime, timedelta
+
+def generate_submission_time(start_time: datetime) -> str:
+    delay = timedelta(hours=random.randint(1, 6))  # Losowy czas opóźnienia (1 do 6 godzin)
+    return (start_time + delay).strftime('%Y-%m-%d %H:%M:%S')
+
+# Pomocnicza funkcja do generowania opóźnienia w przypadku braku submitted_at
+def nullable_field(func):
+    return func if random.random() > 0.5 else None
 
 @dataclass(kw_only=True, frozen=True)
 class Attempt(BaseModel):
@@ -280,8 +295,13 @@ class Attempt(BaseModel):
     )
     started_at: str = field(default_factory=lambda: str(fake.date_time_this_year()))
     submitted_at: str | None = field(
-        default_factory=nullable_field(lambda: str(fake.date_time_this_year()))
+        default_factory=lambda: generate_submission_time(datetime.fromisoformat(str(fake.date_time_this_year())))
     )
+
+    def __post_init__(self):
+        # Jeśli submitted_at jest None, ustaw score na 0
+        if self.submitted_at is None:
+            object.__setattr__(self, 'score', 0.0)
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -309,7 +329,7 @@ class Choice(BaseModel):
 
 
 @dataclass(kw_only=True, frozen=True)
-class ClosedAnswer(BaseModel):
+class ClosedAnswer(Answer):
     _TABLE_NAME: str = "closed_answers"
 
     attempt_id: str
@@ -335,7 +355,7 @@ class ClosedAnswerChoice(BaseModel):
 
 
 @dataclass(kw_only=True, frozen=True)
-class OpenAnswer(BaseModel):
+class OpenAnswer(Answer):
     _TABLE_NAME: str = "open_answers"
 
     open_question_id: str
