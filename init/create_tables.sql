@@ -247,7 +247,7 @@ CREATE TABLE IF NOT EXISTS public.closed_answers (
     attempt_id UUID NOT NULL REFERENCES attempts(id) ON DELETE CASCADE,
     closed_question_id UUID NOT NULL REFERENCES closed_questions(id) ON DELETE CASCADE,
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
+) INHERITS (public.answers);
 
 CREATE TABLE IF NOT EXISTS public.closed_answer_choices (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -262,4 +262,4 @@ CREATE TABLE IF NOT EXISTS public.open_answers (
     content TEXT NOT NULL,
     attempt_id UUID NOT NULL REFERENCES attempts(id) ON DELETE CASCADE,
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
+) INHERITS (public.answers);

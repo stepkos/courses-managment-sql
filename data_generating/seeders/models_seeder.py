@@ -298,6 +298,17 @@ def generate_open_question_seeder(
     return [OpenQuestion(test_id=random.choice(tests).id) for _ in range(num_records)]
 
 
+def generate_open_answer_seeder(
+    num_records: int, 
+    attempts: Sequence[Attempt],
+    open_questions: Sequence[OpenQuestion],
+) -> Sequence[OpenAnswer]:
+    return [OpenAnswer(
+        attempt_id=random.choice(attempts).id,
+        open_question_id=random.choice(open_questions).id) for _ in range(num_records)
+        ]
+
+
 def generate_closed_question_seeder(
     num_records: int, tests: Sequence[Test]
 ) -> Sequence[ClosedQuestion]:
