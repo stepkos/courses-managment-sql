@@ -1,7 +1,11 @@
+-- Liczba kursow kazdego hosta
+
 SELECT host_id, first_name, surname, num_courses
 FROM (
     SELECT 
-        u.id AS host_id, u.first_name, u.surname,
+        u.id AS host_id, 
+		u.first_name, 
+		u.surname,
         COUNT(hc.id) AS num_courses
     FROM 
         public.users u

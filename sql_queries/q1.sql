@@ -1,13 +1,15 @@
+-- Najwyzsze srednie oceny
 SELECT 
+    u.id AS "user_id",
     u.first_name, 
     u.surname, 
-    AVG(s.grade) AS avg_grade
+    ROUND(AVG(s.grade), 2) AS avg_grade
 FROM 
     public.solutions s
 JOIN 
     public.users u ON s.student_id = u.id
 GROUP BY 
-    u.id, u.first_name, u.surname
+    u.id
 ORDER BY 
     avg_grade DESC
 LIMIT 10;
