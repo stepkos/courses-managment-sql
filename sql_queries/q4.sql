@@ -16,4 +16,5 @@ CROSS JOIN
 GROUP BY 
     g.id, g.name, ts.total
 ORDER BY 
-    percentage DESC;
+    percentage DESC
+LIMIT 50;

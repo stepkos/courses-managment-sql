@@ -1,30 +1,21 @@
--- TODO: Solution nie jest jakkolwiek polaczony z testem
--- wystarczy tylko tabela attempt ktora trzyma scory dla podejsc do testow
--- dla studentow. Trzeba wymyslic cos innego, trudniejszego.
-
--- Studenci z co najmniej trzema ocenami powyzej 4 z testow
-
+-- Liczba ocen danej wartości w danym kursie
 
 SELECT 
-    s.student_id,
-    u.first_name,
-    u.surname,
-    COUNT(t.id) AS num_tests_above_4
+    c.id AS course_id,
+    c.title AS course_title,
+    sol.grade,
+    COUNT(sol.id) AS num_grades
 FROM 
-    public.solutions s
+    public.solutions sol
 JOIN 
-    public.exercises e ON s.exercise_id = e.id
+    public.exercises e ON sol.exercise_id = e.id
 JOIN 
     public.entries en ON e.entry_id = en.id
 JOIN 
-    public.tests t ON en.id = t.entry_id
+    public.groups g ON en.group_id = g.id
 JOIN 
-    public.users u ON s.student_id = u.id  
-WHERE 
-    s.grade > 4
+    public.courses c ON g.course_id = c.id
 GROUP BY 
-    s.student_id, u.id
-HAVING 
-    COUNT(t.id) >= 3
+    c.id, sol.grade
 ORDER BY 
-    num_tests_above_4 DESC;
+    c.id, sol.grade DESC;
