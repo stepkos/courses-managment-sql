@@ -11,9 +11,9 @@ def postgres_client():
     conn = psycopg.connect(
         f"host={config.POSTGRES_HOST} "
         f"port={config.POSTGRES_PORT} "
-        f"dbname={config.POSTGRES_PASSWORD} "
-        f"user={config.POSTGRES_DBNAME} "
-        f"password={config.POSTGRES_USER}"
+        f"dbname={config.POSTGRES_DBNAME} "
+        f"user={config.POSTGRES_USER} "
+        f"password={config.POSTGRES_PASSWORD}"
     )
 
     try:
