@@ -325,7 +325,7 @@ class Choice(BaseModel):
 
     closed_question_id: str
     content: str = field(default_factory=fake.text)
-    is_correct: bool | None = field(default_factory=nullable_field(fake.boolean))
+    is_correct: bool | None = field(default_factory=lambda: nullable_field(fake.boolean))
 
 
 @dataclass(kw_only=True, frozen=True)

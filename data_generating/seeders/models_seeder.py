@@ -319,10 +319,14 @@ def generate_closed_question_seeder(
 def generate_choice_seeder(
     num_records: int, closed_questions: Sequence[ClosedQuestion]
 ) -> Sequence[Choice]:
-    return [
-        Choice(closed_question_id=random.choice(closed_questions).id)
-        for _ in range(num_records)
-    ]
+    choices = []
+    for _ in range(num_records):
+        cq = random.choice(closed_questions)
+        if cq:
+            id = cq.id
+            choice = Choice(closed_question_id=id)
+            choices.append(choice)
+    return choices
 
 
 def generate_closed_answer_seeder(

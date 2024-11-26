@@ -8,21 +8,19 @@ from data_generating.factories.abstact import BaseModel
 from data_generating.seeders import *
 
 
-def generate_insert_query(instances: Sequence[BaseModel]) -> str:
-    first_instance, model_type = instances[0], type(instances[0])
-    if any(type(instance) is not model_type for instance in instances):
-        raise ValueError("All instances must be of the same type.")
+def generate_insert_query(instance: BaseModel, query: Query = None) -> str:
+    # first_instance, model_type = instance, type(instances[0])
+    # if any(type(instance) is not model_type for instance in instances):
+    #     raise ValueError("All instances must be of the same type.")
+    field_names = [f.name for f in fields(instance) if not f.name.startswith("_")]
+    if not query:
+        table = Table(instance.get_table_name())
+        query = Query.into(table).columns(*[table[f_name] for f_name in field_names])
 
-    table = Table(first_instance.get_table_name())
-    field_names = [f.name for f in fields(first_instance) if not f.name.startswith("_")]
-
-    query = Query.into(table).columns(*[table[f_name] for f_name in field_names])
-    for instance in instances:
-        query = query.insert(
-            *[ValueWrapper(getattr(instance, f_name)) for f_name in field_names]
-        )
-
-    return str(query)
+    query = query.insert(
+        *[ValueWrapper(getattr(instance, f_name)) for f_name in field_names]
+    )
+    return query
 
 
 def unique(gen: Callable[[], BaseModel], num_records) -> Sequence:
