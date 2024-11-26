@@ -162,7 +162,7 @@ CREATE TABLE IF NOT EXISTS public.entries (
 
 CREATE TABLE IF NOT EXISTS public.comment_of_entries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     entry_id UUID NOT NULL REFERENCES entries(id) ON DELETE CASCADE
@@ -195,7 +195,7 @@ CREATE TABLE IF NOT EXISTS public.solution_files (
 
 CREATE TABLE IF NOT EXISTS public.solution_comments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
