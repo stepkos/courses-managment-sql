@@ -115,55 +115,86 @@ degrees = [
     Degree(name="prof")
 ]
 
-users = generate_users_seeder(users_number, list(degrees))
+multiplier = 20
+users = generate_users_seeder(users_number * multiplier, list(degrees))
+print('users generated')
 administrators = list(filter(lambda x: x.profile_type == 0, users))
+print('admins generated')
 hosts = list(filter(lambda x: x.profile_type == 1, users))
+print('hosts generated')
 students = list(filter(lambda x: x.profile_type == 2, users))
+print('students generated')
 
 students_and_hosts = students + hosts
+print('students and hosts generated')
 
-# # administrators = generate_administrator_seeder(admins_number)
+# # # administrators = generate_administrator_seeder(admins_number * multiplier)
 
-faculties = generate_faculty_seeder(faculties_number)
+faculties = generate_faculty_seeder(faculties_number * multiplier)
+print('faculties generated')
 faculty_administrators = generate_faculty_administrator_seeder(
-    admins_faculties_number, faculties, administrators
+    admins_faculties_number * multiplier, faculties, administrators
 )
-fields_of_study = generate_field_of_study_seeder(fields_of_study_number, faculties, administrators) #nulls * [None] removed
-terms = generate_term_seeder(terms_number, fields_of_study, administrators)
-courses = generate_course_seeder(courses_number, terms, administrators) #nulls * [None] removed
+print('faculty admins generated')
+fields_of_study = generate_field_of_study_seeder(fields_of_study_number * multiplier, faculties, administrators) #nulls * [None] removed
+print('fields of study generated')
+terms = generate_term_seeder(terms_number * multiplier, fields_of_study, administrators)
+print('terms generated')
+courses = generate_course_seeder(courses_number * multiplier, terms, administrators) #nulls * [None] removed
+print('courses generated')
 
 
-college_terms = get_college_terms(college_terms_number)
+college_terms = get_college_terms(college_terms_number * multiplier)
+print('college terms generated')
 
-# # hosts = generate_host_seeder(hosts_number, degrees)
-groups = generate_group_seeder(groups_number, courses, college_terms, hosts) #nulls * [None] removed
-# # students = generate_student_seeder(students_number)
+# # # hosts = generate_host_seeder(hosts_number * multiplier, degrees)
+groups = generate_group_seeder(groups_number * multiplier, courses, college_terms, hosts) #nulls * [None] removed
+print('groups generated')
+# # # students = generate_student_seeder(students_number * multiplier)
 
-# commenters = list(map(lambda x: (x, 3), students)) + list(map(lambda x: (x, 2), hosts))
+# # commenters = list(map(lambda x: (x, 3), students)) + list(map(lambda x: (x, 2), hosts))
 
 student_groups = generate_student_group_seeder(
-    students_groups_number, groups, students, hosts
+    students_groups_number * multiplier, groups, students, hosts
 )
-host_courses = generate_host_course_seeder(hosts_courses_number, hosts, courses, hosts)
-host_groups = get_host_group_seeder(host_groups_number, hosts, groups, host_courses)
-entries = generate_entry_seeder(entries_number, groups, hosts)
-comment_of_entries = generate_comment_of_entry_seeder(comments_of_entries_number, students_and_hosts, entries)
-entry_files = generate_entry_file_seeder(entries_files_number, entries)
-exercises = generate_exercise_seeder(exercises_number, entries)
-solutions = generate_solution_seeder(solutions_number, exercises, students)
-solution_files = generate_solution_file_seeder(solutions_number, solutions)
-solution_comments = generate_solution_comment_seeder(solutions_number, students_and_hosts, solutions)
-tests = generate_test_seeder(tests_number, entries)
-attempts = generate_attempt_seeder(attempts_number, students, tests)
-open_questions = generate_open_question_seeder(open_q_number, tests)
-open_answers = generate_open_answer_seeder(open_a_number,attempts, open_questions)
-closed_questions = generate_closed_question_seeder(closed_q_number, tests)
-print([type(x) for x in closed_questions])
-choices = generate_choice_seeder(choices_number, closed_questions)
-closed_answers = generate_closed_answer_seeder(closed_answers_number, attempts, closed_questions)
+print('student groups generated')
+host_courses = generate_host_course_seeder(hosts_courses_number * multiplier, hosts, courses, hosts)
+print('host courses generated')
+host_groups = get_host_group_seeder(host_groups_number * multiplier, hosts, groups, host_courses)
+print('host groups generated')
+entries = generate_entry_seeder(entries_number * multiplier, groups, hosts)
+print('entries generated')
+comment_of_entries = generate_comment_of_entry_seeder(comments_of_entries_number * multiplier, students_and_hosts, entries)
+print('comments of entries generated')
+entry_files = generate_entry_file_seeder(entries_files_number * multiplier, entries)
+print('entry files generated')
+exercises = generate_exercise_seeder(exercises_number * multiplier, entries)
+print('exercises generated')
+solutions = generate_solution_seeder(solutions_number * multiplier, exercises, students)
+print('solutions generated')
+solution_files = generate_solution_file_seeder(solutions_number * multiplier, solutions)
+print('solution files generated')
+solution_comments = generate_solution_comment_seeder(solutions_number * multiplier, students_and_hosts, solutions)
+print('solution comments generated')
+tests = generate_test_seeder(tests_number * multiplier, entries)
+print('tests generated')
+attempts = generate_attempt_seeder(attempts_number * multiplier, students, tests)
+print('attempts generated')
+open_questions = generate_open_question_seeder(open_q_number * multiplier, tests)
+print('open questions generated')
+open_answers = generate_open_answer_seeder(open_a_number * multiplier,attempts, open_questions)
+print('open answers generated')
+closed_questions = generate_closed_question_seeder(closed_q_number * multiplier, tests)
+print('closed questions generated')
+# print([type(x) for x in closed_questions])
+choices = generate_choice_seeder(choices_number * multiplier, closed_questions)
+print('choices generated')
+closed_answers = generate_closed_answer_seeder(closed_answers_number * multiplier, attempts, closed_questions)
+print('closed answers generated')
 closed_answer_choices = generate_closed_answer_choice_seeder(
-    closed_answers_number, closed_answers, choices
+    closed_answers_number * multiplier, closed_answers, choices
 )
+print('closed answer choices generated')
 # TODO COLLEGE TERMS ARE ALzMOST EMPTY (CHYBA DONE)
 # DONE FIELDS OF STUDY DODANE DESCRIPTION (WCZEŚNIEJ "")
 # TODO DO NOT FILL FILES TABLE
@@ -206,6 +237,25 @@ tables: list[Sequence[BaseModel]] = [
 print('created')
 
 
-with open('output.txt', 'w') as file:
-    file.write("".join(map(lambda x: generate_insert_query(x) + ";\n", tables)))
+with open(f'output_v2_{multiplier}x.txt', 'w') as file:
+    for i, table in enumerate(tables):
+        print("Table", i, " out of ", len(tables))
+        quries_quantity = 0
+        query = None
+        for j, instance in enumerate(table):
+            query = generate_insert_query(instance, query)
+            if j % 1000 == 0:
+                print("Instance", j, " out of ", len(table))
+            quries_quantity += 1
+            if quries_quantity == 1000:
+                file.writelines(str(query) + ";\n")
+                query = None
+                quries_quantity = 0
+        if query:
+            file.writelines(str(query) + ";\n")
+            query = None
+            quries_quantity = 0
+
+        
+
 
