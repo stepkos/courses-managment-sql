@@ -23,3 +23,15 @@ CREATE INDEX idx_closed_questions_test_id ON public.closed_questions(test_id);
 
 -- user.email
 CREATE INDEX idx_user_email ON public.users(email);
+
+
+
+-- OPTYMALIZACJA KONKRETNYCH ZAPYTAŃ
+
+-- 1)
+-- CREATE INDEX idx_attempts_score ON attempts (score);
+
+-- 2)
+-- CREATE INDEX idx_choices_closed_question_id ON choices (closed_question_id);
+-- CREATE INDEX idx_tests_entry_id ON tests (entry_id);
+-- CREATE INDEX idx_entries_title ON entries (title);
