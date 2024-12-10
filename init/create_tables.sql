@@ -281,5 +281,5 @@ CREATE TABLE IF NOT EXISTS public.open_answers (
 
 CREATE TABLE IF NOT EXISTS public.open_answer_files (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    open_answer_id UUID NOT NULL REFERENCES open_answers(id) ON DELETE CASCADE,
+    open_answer_id UUID NOT NULL REFERENCES open_answers(id) ON DELETE CASCADE
 ) INHERITS (public.files);
