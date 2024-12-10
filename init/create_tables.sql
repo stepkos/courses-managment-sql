@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS public.entries (
 
 CREATE TABLE IF NOT EXISTS public.comment_of_entries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     entry_id UUID NOT NULL REFERENCES entries(id) ON DELETE CASCADE
@@ -188,20 +188,20 @@ CREATE TABLE IF NOT EXISTS public.solutions (
 
 CREATE TABLE IF NOT EXISTS public.solution_students (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    student_id UUID NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+    student_id UUID REFERENCES users(id) ON DELETE SET NULL,
     solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS public.solution_files (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE SET NULL,
-    user_id UUID
+    solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL
 ) INHERITS (public.files);
 
 CREATE TABLE IF NOT EXISTS public.solution_comments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID,
-    solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE SET NULL,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
