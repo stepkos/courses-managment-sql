@@ -240,7 +240,8 @@ CREATE TABLE IF NOT EXISTS public.attempts (
 
 CREATE TABLE IF NOT EXISTS public.open_questions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    test_id UUID NOT NULL REFERENCES tests(id) ON DELETE CASCADE
+    test_id UUID NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
+    allow_files BOOLEAN NOT NULL DEFAULT FALSE
 ) INHERITS (public.questions);
 
 CREATE TABLE IF NOT EXISTS public.closed_questions (
@@ -277,3 +278,8 @@ CREATE TABLE IF NOT EXISTS public.open_answers (
     attempt_id UUID NOT NULL REFERENCES attempts(id) ON DELETE CASCADE,
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 ) INHERITS (public.answers);
+
+CREATE TABLE IF NOT EXISTS public.open_answer_files (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    open_answer_id UUID NOT NULL REFERENCES open_answers(id) ON DELETE CASCADE,
+) INHERITS (public.files);
