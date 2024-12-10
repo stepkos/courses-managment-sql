@@ -7,8 +7,10 @@ DROP TABLE IF EXISTS public.closed_questions;
 DROP TABLE IF EXISTS public.open_questions;
 DROP TABLE IF EXISTS public.attempts;
 DROP TABLE IF EXISTS public.tests;
+DROP TABLE IF EXISTS public.grades;
 DROP TABLE IF EXISTS public.solution_comments;
 DROP TABLE IF EXISTS public.solution_files;
+DROP TABLE IF EXISTS public.solution_students;
 DROP TABLE IF EXISTS public.solutions;
 DROP TABLE IF EXISTS public.exercises;
 DROP TABLE IF EXISTS public.entry_files;
@@ -162,7 +164,7 @@ CREATE TABLE IF NOT EXISTS public.entries (
 
 CREATE TABLE IF NOT EXISTS public.comment_of_entries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     entry_id UUID NOT NULL REFERENCES entries(id) ON DELETE CASCADE
@@ -181,16 +183,19 @@ CREATE TABLE IF NOT EXISTS public.exercises (
 
 CREATE TABLE IF NOT EXISTS public.solutions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    exercise_id UUID NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+    exercise_id UUID NOT NULL REFERENCES exercises(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS public.solution_students (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     student_id UUID REFERENCES users(id) ON DELETE SET NULL,
-    grade NUMERIC(4, 2) NOT NULL CHECK (grade >= 0.00 AND grade <= 10.00),
-    submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    text_answer TEXT NOT NULL DEFAULT ''
+    solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS public.solution_files (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE CASCADE
+    solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL
 ) INHERITS (public.files);
 
 CREATE TABLE IF NOT EXISTS public.solution_comments (
@@ -199,6 +204,15 @@ CREATE TABLE IF NOT EXISTS public.solution_comments (
     solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.grades (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    evaluated_asset_id UUID,
+    evaluated_asset_type INTEGER,  -- framework enum 0 - solution, 1 - test
+    value NUMERIC(4, 2) NOT NULL CHECK (value >= 0.00 AND value <= 10.00),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public.tests (
@@ -226,7 +240,8 @@ CREATE TABLE IF NOT EXISTS public.attempts (
 
 CREATE TABLE IF NOT EXISTS public.open_questions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    test_id UUID NOT NULL REFERENCES tests(id) ON DELETE CASCADE
+    test_id UUID NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
+    allow_files BOOLEAN NOT NULL DEFAULT FALSE
 ) INHERITS (public.questions);
 
 CREATE TABLE IF NOT EXISTS public.closed_questions (
@@ -263,3 +278,8 @@ CREATE TABLE IF NOT EXISTS public.open_answers (
     attempt_id UUID NOT NULL REFERENCES attempts(id) ON DELETE CASCADE,
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 ) INHERITS (public.answers);
+
+CREATE TABLE IF NOT EXISTS public.open_answer_files (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    open_answer_id UUID NOT NULL REFERENCES open_answers(id) ON DELETE CASCADE
+) INHERITS (public.files);
