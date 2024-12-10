@@ -7,8 +7,10 @@ DROP TABLE IF EXISTS public.closed_questions;
 DROP TABLE IF EXISTS public.open_questions;
 DROP TABLE IF EXISTS public.attempts;
 DROP TABLE IF EXISTS public.tests;
+DROP TABLE IF EXISTS public.grades;
 DROP TABLE IF EXISTS public.solution_comments;
 DROP TABLE IF EXISTS public.solution_files;
+DROP TABLE IF EXISTS public.solution_students;
 DROP TABLE IF EXISTS public.solutions;
 DROP TABLE IF EXISTS public.exercises;
 DROP TABLE IF EXISTS public.entry_files;
@@ -181,24 +183,36 @@ CREATE TABLE IF NOT EXISTS public.exercises (
 
 CREATE TABLE IF NOT EXISTS public.solutions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    exercise_id UUID NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
-    student_id UUID REFERENCES users(id) ON DELETE SET NULL,
-    grade NUMERIC(4, 2) NOT NULL CHECK (grade >= 0.00 AND grade <= 10.00),
-    submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    text_answer TEXT NOT NULL DEFAULT ''
+    exercise_id UUID NOT NULL REFERENCES exercises(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS public.solution_students (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    student_id UUID NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+    solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS public.solution_files (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE CASCADE
+    solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE SET NULL,
+    user_id UUID
 ) INHERITS (public.files);
 
 CREATE TABLE IF NOT EXISTS public.solution_comments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID,
-    solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE CASCADE,
+    solution_id UUID NOT NULL REFERENCES solutions(id) ON DELETE SET NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.grades (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    evaluated_asset_id UUID,
+    evaluated_asset_type INTEGER,  -- framework enum 0 - solution, 1 - test
+    value NUMERIC(4, 2) NOT NULL CHECK (value >= 0.00 AND value <= 10.00),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public.tests (
