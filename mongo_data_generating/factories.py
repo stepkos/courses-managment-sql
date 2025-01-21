@@ -5,13 +5,15 @@ from bson import ObjectId
 from mongo_data_generating.models.models import *
 
 
-def faculty_factory() -> Faculty:
+def faculty_factory() -> dict:
+    all_courses_ids = []
     field_of_studies = []
     for _ in range(random.randint(1, 10)):
         terms = []
         for _ in range(random.randint(1, 10)):
             courses = [Course() for _ in range(random.randint(1, 7))]
             terms.append(Term(courses=courses))
+            all_courses_ids.extend([course.id for course in courses])
 
         field_of_studies.append(FieldOfStudy(terms=terms))
 
@@ -21,11 +23,19 @@ def faculty_factory() -> Faculty:
     faculty = Faculty(
         faculty_administrators=faculty_administrators, fields_of_study=field_of_studies
     )
-    return faculty
+    return {
+        "faculty": faculty,
+        "all_courses_ids": all_courses_ids,
+    }
 
 
-def user_factory() -> User:
-    courses_hosted = [HostCourse() for _ in range(random.randint(1, 10))]
+def user_factory(
+    courses_ids: list[ObjectId],
+) -> User:
+    courses_hosted = [
+        HostCourse(course_id=random.choice(courses_ids))
+        for _ in range(random.randint(1, 10))
+    ]
     groups_hosted = [ObjectId() for _ in range(random.randint(1, 10))]
     user = User(
         courses_hosted=courses_hosted,

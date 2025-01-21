@@ -10,10 +10,12 @@ from mongo_data_generating.repositories import GenericRepository
 
 
 def seed_data(multi: int = 1):
-    faculty = faculty_factory()
+    res = faculty_factory()
+    faculty = res["faculty"]
+    courses_ids = res["all_courses_ids"]
     GenericRepository("faculties").insert_one(faculty)
 
-    users = (user_factory() for _ in range(2000 * multi))
+    users = (user_factory(courses_ids) for _ in range(2000 * multi))
     GenericRepository("users").insert_many(users)
 
     groups = (group_factory() for _ in range(50 * multi))

@@ -105,6 +105,8 @@ class CollegeTerm(BaseModel):
         default_factory=lambda: fake.date_time_this_year()
     )
 
+# Group Schemas
+
 
 class Student(BaseModel):
     student_id: ObjectId = Field(default_factory=ObjectId)
