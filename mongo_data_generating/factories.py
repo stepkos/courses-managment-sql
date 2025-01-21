@@ -55,7 +55,10 @@ def group_factory(courses_ids: list[ObjectId]) -> Group:
     return group
 
 
-def entry_factory() -> Entry:
+def entry_factory(
+    users_ids: list[ObjectId],
+    groups_ids: list[ObjectId],
+) -> Entry:
     open_questions = [OpenQuestion() for _ in range(random.randint(1, 10))]
     closed_questions = [
         ClosedQuestion(choices=[Choice() for _ in range(4)])
@@ -63,8 +66,16 @@ def entry_factory() -> Entry:
     ]
     test = Test(open_questions=open_questions, closed_questions=closed_questions)
     exercise = Exercise()
-    comments = [CommentOfEntry() for _ in range(random.randint(1, 10))]
-    entry = Entry(test=test, exercise=exercise, comments=comments)
+    comments = [
+        CommentOfEntry(user=CommentUser(user_id=random.choice(users_ids)))
+        for _ in range(random.randint(1, 10))
+    ]
+    entry = Entry(
+        test=test,
+        exercise=exercise,
+        comments=comments,
+        group_id=random.choice(groups_ids),
+    )
     return entry
 
 

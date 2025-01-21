@@ -15,13 +15,15 @@ def seed_data(multi: int = 1):
     courses_ids = res["all_courses_ids"]
     GenericRepository("faculties").insert_one(faculty)
 
-    users = (user_factory(courses_ids) for _ in range(2000 * multi))
+    users = [user_factory(courses_ids) for _ in range(2000 * multi)]
+    users_ids = [user.id for user in users]
     GenericRepository("users").insert_many(users)
 
-    groups = (group_factory(courses_ids) for _ in range(50 * multi))
+    groups = [group_factory(courses_ids) for _ in range(50 * multi)]
+    groups_ids = [group.id for group in groups]
     GenericRepository("groups").insert_many(groups)
 
-    entries = (entry_factory() for _ in range(100 * multi))
+    entries = (entry_factory(users_ids, groups_ids) for _ in range(100 * multi))
     GenericRepository("entries").insert_many(entries)
 
     solutions = (solution_factory() for _ in range(100 * multi))
