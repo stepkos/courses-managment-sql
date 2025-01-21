@@ -1,32 +1,19 @@
 from abc import ABC
+from typing import Optional
+
 from pydantic import BaseModel as _BaseModel
-from pydantic import Field, EmailStr, HttpUrl, validator
+from pydantic import Field
 from bson import ObjectId
 
 from mongo_data_generating.models.utils import nullable_factory
 from mongo_data_generating.models import fake
 
 
-class PyObjectId(ObjectId):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        if not ObjectId.is_valid(v):
-            raise ValueError("Invalid ObjectId")
-        return ObjectId(v)
-
-    @classmethod
-    def __modify_schema__(cls, field_schema):
-        field_schema.update(type="string")
-
-
 class BaseModel(_BaseModel, ABC):
-    _id: PyObjectId = Field(default_factory=ObjectId, alias="id")
+    id: ObjectId = Field(default_factory=ObjectId, alias="_id")
 
     class Config:
+        arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
 
 
