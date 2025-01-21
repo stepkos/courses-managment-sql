@@ -1,5 +1,7 @@
 from typing import Iterable
 
+from bson import ObjectId
+
 from mongo_data_generating.models.abstact import BaseModel
 from mongo_data_generating.models.models import *
 from mongo_data_generating.clients import mongo_client_ctx
