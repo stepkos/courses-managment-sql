@@ -8,12 +8,12 @@ from bson import ObjectId
 from pydantic import Field
 
 from mongo_data_generating.models import fake
-from mongo_data_generating.models.abstact import BaseModel
+from mongo_data_generating.models.abstact import BaseModel, Question
 from mongo_data_generating.models.mixins import TimestampMixin
 from mongo_data_generating.models.utils import nullable_factory, generate_submission_time
 
 
-# Faculty Schema
+# Faculty Schemas
 
 class FacultyAdministrator(BaseModel):  # tutaj rozwaz na przejscie na samo ID administratora
     pass
@@ -45,7 +45,7 @@ class Faculty(BaseModel):
     fields_of_study: List[FieldOfStudy] = Field()
 
 
-# Users Schema
+# Users Schemas
 
 class HostCourse(BaseModel, TimestampMixin):
     course_id: ObjectId = Field(default_factory=ObjectId)  # For tests
@@ -69,7 +69,6 @@ class User(BaseModel):
 
 
 class CollegeTerm(BaseModel):
-    # TODO: definitely use better generators here
     start_date: datetime = Field(default_factory=lambda: fake.date_time_this_year())
     end_date: datetime | None = Field(
         default_factory=lambda: fake.date_time_this_year()
@@ -93,41 +92,76 @@ class Group(BaseModel, TimestampMixin):
     students: List[Student] = Field()
 
 
-# class StudentGroup(BaseModel):
-#     group_id: str
-#     student_id: str
-#     created_by: str
-#     created_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
-#
-#
+# Entries Schemas
 
-#
-#
-# class Entry(BaseModel):
-#     group_id: str | None
-#     title: str = Field(default_factory=fake.word)
-#     created_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
-#     updated_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
-#     content: str = Field(default_factory=fake.text)
-#     host_id: str | None
-#
-#
-# class CommentOfEntry(BaseModel):
-#     user_id: str
-#     content: str = Field(default_factory=fake.text)
-#     created_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
-#     entry_id: str
-#
-#
-# class EntryFile(File):
-#     entry_id: str
-#
-#
-# class Exercise(BaseModel):
-#     entry_id: str
-#     due_date: str | None = Field(
-#         default_factory=nullable_factory(lambda: str(fake.date_time_this_year()))
-#     )
+class Exercise(BaseModel):
+    exercise_id: ObjectId = Field(default_factory=ObjectId)
+    due_date: datetime = Field(
+        default_factory=lambda x: fake.date_time_this_year()
+    )
+
+
+class Choice(BaseModel):
+    designation: str = Field(default_factory=fake.word)
+    content: str = Field(default_factory=fake.text)
+    is_correct: bool | None = Field(default_factory=fake.boolean)
+
+
+class OpenQuestion(Question):
+    open_q_id: ObjectId = Field(default_factory=ObjectId)
+
+
+class ClosedQuestion(Question):
+    closed_q_id: ObjectId = Field(default_factory=ObjectId)
+    choices: List[Choice] = Field()
+
+
+class Test(BaseModel):
+    test_id: ObjectId = Field(default_factory=ObjectId)
+    title: str = Field(default_factory=fake.word)
+    description: str = Field(default_factory=fake.text)
+    available_from_date: datetime = Field(
+        default_factory=lambda: fake.date_time_this_year()
+    )
+    available_to_date: datetime | None = Field(
+        default_factory=lambda: fake.date_time_this_year()
+    )
+    max_seconds_for_open: int | None = Field(
+        default_factory=lambda: fake.pyint(min_value=0, max_value=120)
+    )
+    max_seconds_for_closed: int | None = Field(
+        default_factory=lambda: fake.pyint(min_value=0, max_value=120)
+    )
+    duration_in_minutes: int = Field(default_factory=lambda: fake.pyint(min_value=0, max_value=180))
+    closed_questions: List[ClosedQuestion] = Field()
+    open_questions: List[OpenQuestion] = Field()
+
+
+class CommentUser(BaseModel):
+    user_id: ObjectId = Field(default_factory=ObjectId)
+    first_name: str = Field(default_factory=fake.first_name)
+    last_name: str = Field(default_factory=fake.last_name)
+
+
+class CommentOfEntry(BaseModel):
+    user: CommentUser = Field(default_factory=CommentUser)
+    content: str = Field(default_factory=fake.text)
+    created_at: datetime = Field(default_factory=lambda: fake.date_time_this_year())
+
+
+class Entry(BaseModel, TimestampMixin):
+    group_id: ObjectId = Field(default_factory=ObjectId)
+    title: str = Field(default_factory=fake.word)
+    updated_at: datetime = Field(default_factory=lambda: fake.date_time_this_year())
+    content: str = Field(default_factory=fake.text)
+    file_url: str | None = Field(default_factory=fake.url)
+    exercise: Exercise | None = Field(default_factory=Exercise)
+    test: Test | None = Field(default_factory=Test)
+    comments: List[CommentOfEntry] = Field()
+
+
+
+
 #
 #
 # class Solution(BaseModel):
@@ -151,26 +185,7 @@ class Group(BaseModel, TimestampMixin):
 #     created_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
 #
 #
-# class Test(BaseModel):
-#     entry_id: str
-#     title: str = Field(default_factory=fake.word)
-#     description: str = Field(default_factory=fake.text)
-#     available_from_date: str = Field(
-#         default_factory=lambda: str(fake.date_time_this_year())
-#     )
-#     available_to_date: str | None = Field(
-#         default_factory=nullable_factory(lambda: str(fake.date_time_this_year()))
-#     )
-#     max_seconds_for_open: int | None = Field(
-#         default_factory=nullable_factory(lambda: fake.pyint(min_value=0, max_value=120))
-#     )
-#     max_seconds_for_closed: int | None = Field(
-#         default_factory=nullable_factory(lambda: fake.pyint(min_value=0, max_value=120))
-#     )
-#     duration_in_minutes: int = Field(default_factory=lambda: fake.pyint(min_value=0, max_value=180))
-#     created_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
-#     updated_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
-#
+
 #
 # class Attempt(BaseModel):
 #     student_id: str
@@ -189,20 +204,9 @@ class Group(BaseModel, TimestampMixin):
 #             object.__setattr__(self, 'score', 0.0)
 #
 #
-# class OpenQuestion(Question):
-#     test_id: str
+
 #
-#
-# class ClosedQuestion(Question):
-#     test_id: str
-#     is_multiple: bool = Field(default_factory=fake.boolean)
-#
-#
-# class Choice(BaseModel):
-#     closed_question_id: str
-#     content: str = Field(default_factory=fake.text)
-#     is_correct: bool | None = Field(default_factory=lambda: nullable_factory(fake.boolean))
-#
+
 #
 # class ClosedAnswer(Answer):
 #     attempt_id: str
@@ -245,7 +249,22 @@ if __name__ == '__main__':
     # print(u.model_dump_json(indent=4))
 
     # Group Schema Test
-    ct = CollegeTerm()
-    s = [Student() for _ in range(5)]
-    g = Group(college_term=ct, students=s)
-    print(g.model_dump_json(indent=4))
+    # ct = CollegeTerm()
+    # s = [Student() for _ in range(5)]
+    # g = Group(college_term=ct, students=s)
+    # print(g.model_dump_json(indent=4))
+
+    # Entry Schema Test
+    c = ClosedQuestion(choices=[Choice() for _ in range(4)])
+    o = OpenQuestion()
+    t = Test(
+        open_questions=[o],
+        closed_questions=[c]
+    )
+    e = Exercise()
+    co = CommentOfEntry()
+    entry = Entry(
+        test=t,
+        exercise=e,
+        comments=[co]
+    )

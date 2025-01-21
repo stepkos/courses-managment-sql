@@ -17,18 +17,18 @@ class BaseModel(_BaseModel, ABC):
         json_encoders = {ObjectId: str}
 
 
-# class Answer(BaseModel):
-#     points: int | None = Field(
-#         default_factory=nullable_factory((lambda: fake.random_int(min=0, max=100)))
-#     )
-#     submitted_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
-#
-#
-# class Question(BaseModel):
-#     content: str = Field(default_factory=fake.text)
-#     points: int = Field(default_factory=lambda: fake.random_int(min=0, max=100))
-#
-#
-# class File(BaseModel):
-#     file_url: str = Field(default_factory=fake.url)
-#     uploaded_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
+class Answer(BaseModel):
+    points: int | None = Field(
+        default_factory=nullable_factory((lambda: fake.random_int(min=0, max=100)))
+    )
+    submitted_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
+
+
+class Question(BaseModel):
+    content: str = Field(default_factory=fake.text)
+    points: int = Field(default_factory=lambda: fake.random_int(min=0, max=100))
+
+
+class File(BaseModel):
+    file_url: str = Field(default_factory=fake.url)
+    uploaded_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))

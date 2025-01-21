@@ -1,7 +1,5 @@
 from typing import Iterable
 
-from bson import ObjectId
-
 from mongo_data_generating.models.models import *
 from mongo_data_generating.clients import mongo_client_ctx
 
@@ -57,3 +55,19 @@ if __name__ == "__main__":
     g = Group(college_term=ct, students=s)
     print(g.image)
     GenericRepository("groups").insert_one(g)
+
+    # Entry test
+    c = ClosedQuestion(choices=[Choice() for _ in range(4)])
+    o = OpenQuestion()
+    t = Test(
+        open_questions=[o],
+        closed_questions=[c]
+    )
+    e = Exercise()
+    co = CommentOfEntry()
+    entry = Entry(
+        test=t,
+        exercise=e,
+        comments=[co]
+    )
+    GenericRepository("entries").insert_one(entry)
