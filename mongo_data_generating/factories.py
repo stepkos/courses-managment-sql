@@ -79,10 +79,22 @@ def entry_factory(
     return entry
 
 
-def solution_factory() -> Solution:
-    comments = [SolutionComment() for _ in range(random.randint(1, 10))]
+def solution_factory(
+    users_ids: list[ObjectId],
+    students_ids: list[ObjectId],
+    exercises_ids: list[ObjectId],
+) -> Solution:
+    comments = [
+        SolutionComment(commenter_id=random.choice(users_ids))
+        for _ in range(random.randint(1, 10))
+    ]
     grade = Grade()
-    solution = Solution(comments=comments, grade=grade)
+    solution = Solution(
+        student_id=random.choice(students_ids),
+        comments=comments,
+        grade=grade,
+        exercise_id=random.choice(exercises_ids),
+    )
     return solution
 
 

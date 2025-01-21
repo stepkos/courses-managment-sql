@@ -21,15 +21,22 @@ def seed_data(multi: int = 1):
 
     groups = [group_factory(courses_ids) for _ in range(50 * multi)]
     groups_ids = [group.id for group in groups]
+    students_ids = []
+    for group in groups:
+        students_ids.extend([s.student_id for s in group.students])
+
     GenericRepository("groups").insert_many(groups)
 
-    entries = (entry_factory(users_ids, groups_ids) for _ in range(100 * multi))
+    entries = [entry_factory(users_ids, groups_ids) for _ in range(100 * multi)]
+    exercises_ids = [entry.exercise.exercise_id for entry in entries]
     GenericRepository("entries").insert_many(entries)
 
-    solutions = (solution_factory() for _ in range(100 * multi))
+    solutions = [
+        solution_factory(users_ids, students_ids, exercises_ids) for _ in range(100 * multi)
+    ]
     GenericRepository("solutions").insert_many(solutions)
 
-    attempts = (attempt_factory() for _ in range(100 * multi))
+    attempts = [attempt_factory() for _ in range(100 * multi)]
     GenericRepository("attempts").insert_many(attempts)
 
 
