@@ -1,11 +1,9 @@
 from abc import ABC
-from typing import Optional
 
 from pydantic import BaseModel as _BaseModel
 from pydantic import Field
 from bson import ObjectId
 
-from mongo_data_generating.models.utils import nullable_factory
 from mongo_data_generating.models import fake
 
 

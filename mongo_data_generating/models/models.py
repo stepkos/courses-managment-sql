@@ -15,7 +15,7 @@ from mongo_data_generating.models.mixins import TimestampMixin
 
 # Faculty Schemas
 
-class FacultyAdministrator(BaseModel):  # tutaj rozwaz na przejscie na samo ID administratora
+class FacultyAdministrator(BaseModel):
     pass
 
 
@@ -48,7 +48,7 @@ class Faculty(BaseModel):
 # Users Schemas
 
 class HostCourse(BaseModel, TimestampMixin):
-    course_id: ObjectId = Field(default_factory=ObjectId)  # For tests
+    course_id: ObjectId = Field(default_factory=ObjectId)
     is_admin: bool = Field(
         default_factory=lambda: fake.boolean(chance_of_getting_true=20)
     )
@@ -79,7 +79,7 @@ class Student(BaseModel):
     student_id: ObjectId = Field(default_factory=ObjectId)
     first_name: str = Field(default_factory=fake.first_name)
     last_name: str = Field(default_factory=fake.last_name)
-    assigned_by: ObjectId = Field(default_factory=ObjectId)  # for tests
+    assigned_by: ObjectId = Field(default_factory=ObjectId)
     assigned_at: datetime = Field(default_factory=lambda: fake.date_time_this_year())
 
 
