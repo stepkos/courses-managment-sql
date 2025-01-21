@@ -29,6 +29,7 @@ def seed_data(multi: int = 1):
 
     entries = [entry_factory(users_ids, groups_ids) for _ in range(100 * multi)]
     exercises_ids = [entry.exercise.exercise_id for entry in entries]
+    tests_ids = [entry.test.test_id for entry in entries]
     GenericRepository("entries").insert_many(entries)
 
     solutions = [
@@ -36,7 +37,10 @@ def seed_data(multi: int = 1):
     ]
     GenericRepository("solutions").insert_many(solutions)
 
-    attempts = [attempt_factory() for _ in range(100 * multi)]
+    attempts = [
+        attempt_factory(students_ids, tests_ids)
+        for _ in range(100 * multi)
+    ]
     GenericRepository("attempts").insert_many(attempts)
 
 

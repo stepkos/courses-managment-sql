@@ -98,10 +98,16 @@ def solution_factory(
     return solution
 
 
-def attempt_factory() -> Attempt:
+def attempt_factory(
+    students_ids: list[ObjectId],
+    tests_ids: list[ObjectId],
+) -> Attempt:
     answers_for_open_q = [OpenAnswer() for _ in range(random.randint(1, 10))]
     answers_for_closed_q = [ClosedAnswer() for _ in range(random.randint(1, 10))]
     attempt = Attempt(
-        answers_for_open_q=answers_for_open_q, answers_for_closed_q=answers_for_closed_q
+        student_id=random.choice(students_ids),
+        test_id=random.choice(tests_ids),
+        answers_for_open_q=answers_for_open_q,
+        answers_for_closed_q=answers_for_closed_q
     )
     return attempt
