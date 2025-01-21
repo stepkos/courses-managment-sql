@@ -1,7 +1,9 @@
+__all__ = ['FacultyAdministrator', 'Course', 'Term', 'FieldOfStudy', 'Faculty', 'HostCourse', 'User', 'CollegeTerm', 'Student', 'Group', 'Exercise', 'Choice', 'OpenQuestion', 'ClosedQuestion', 'Test', 'CommentUser', 'CommentOfEntry', 'Entry', 'SolutionComment', 'Grade', 'Solution', 'ClosedAnswer', 'OpenAnswer', 'Attempt']
+
 import random
 from typing import List
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from bson import ObjectId
 from pydantic import Field
@@ -9,7 +11,6 @@ from pydantic import Field
 from mongo_data_generating.models import fake
 from mongo_data_generating.models.abstact import BaseModel, Question
 from mongo_data_generating.models.mixins import TimestampMixin
-from mongo_data_generating.models.utils import nullable_factory
 
 
 # Faculty Schemas
