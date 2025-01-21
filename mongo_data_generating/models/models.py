@@ -9,7 +9,7 @@ from pydantic import Field
 
 from mongo_data_generating.models import fake
 from mongo_data_generating.models.abstact import BaseModel
-from mongo_data_generating.models.mixins import CreatedTimestampMixin
+from mongo_data_generating.models.mixins import TimestampMixin
 from mongo_data_generating.models.utils import nullable_factory, generate_submission_time
 
 
@@ -19,17 +19,17 @@ class FacultyAdministrator(BaseModel):  # tutaj rozwaz na przejscie na samo ID a
     pass
 
 
-class Course(BaseModel, CreatedTimestampMixin):
+class Course(BaseModel, TimestampMixin):
     title: str = Field(default_factory=lambda: ' '.join(fake.words(random.randint(1, 4))))
     description: str = Field(default_factory=fake.text)
 
 
-class Term(BaseModel, CreatedTimestampMixin):
+class Term(BaseModel, TimestampMixin):
     term_number: int = Field(default_factory=lambda: fake.random_int(min=1, max=7))
     courses: List[Course] = Field()
 
 
-class FieldOfStudy(BaseModel, CreatedTimestampMixin):
+class FieldOfStudy(BaseModel, TimestampMixin):
     name: str = Field(default_factory=fake.word)
     description: str = Field(default_factory=lambda: ' '.join(fake.words(random.randint(5, 15))))
     start_year: int = Field(default_factory=lambda: fake.random_int(min=2010, max=2025))
@@ -47,8 +47,8 @@ class Faculty(BaseModel):
 
 # Users Schema
 
-class HostCourse(BaseModel, CreatedTimestampMixin):
-    course_id: ObjectId = Field(default_factory=ObjectId)
+class HostCourse(BaseModel, TimestampMixin):
+    course_id: ObjectId = Field(default_factory=ObjectId)  # For tests
     is_admin: bool = Field(
         default_factory=lambda: fake.boolean(chance_of_getting_true=20)
     )
@@ -68,24 +68,31 @@ class User(BaseModel):
     groups_hosted: List[ObjectId] = Field()
 
 
-# class CollegeTerm(BaseModel):
-#     # TODO: definitely use better generators here
-#     start_date: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
-#     end_date: str | None = Field(
-#         default_factory=lambda: str(fake.date_time_this_year())
-#     )
-#
-#
-# class Group(BaseModel):
-#     course_id: str
-#     college_term_id: str
-#     name: str = Field(default_factory=fake.word)
-#     description: str = Field(default_factory=fake.text)
-#     image: str | None = Field(default_factory=nullable_factory(fake.url))
-#     created_by: str | None
-#     created_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
-#
-#
+class CollegeTerm(BaseModel):
+    # TODO: definitely use better generators here
+    start_date: datetime = Field(default_factory=lambda: fake.date_time_this_year())
+    end_date: datetime | None = Field(
+        default_factory=lambda: fake.date_time_this_year()
+    )
+
+
+class Student(BaseModel):
+    student_id: ObjectId = Field(default_factory=ObjectId)
+    first_name: str = Field(default_factory=fake.first_name)
+    last_name: str = Field(default_factory=fake.last_name)
+    assigned_by: ObjectId = Field(default_factory=ObjectId)  # for tests
+    assigned_at: datetime = Field(default_factory=lambda: fake.date_time_this_year())
+
+
+class Group(BaseModel, TimestampMixin):
+    name: str = Field(default_factory=fake.word)
+    description: str = Field(default_factory=fake.text)
+    image: str | None = Field(default_factory=fake.url)
+    college_term: CollegeTerm = Field()
+    assigned_to_course_id: ObjectId | None = Field(default_factory=ObjectId)
+    students: List[Student] = Field()
+
+
 # class StudentGroup(BaseModel):
 #     group_id: str
 #     student_id: str
@@ -218,21 +225,27 @@ class User(BaseModel):
 
 if __name__ == '__main__':
     # Faculty Schema Test
-    courses = [Course() for _ in range(5)]
-    t = Term(courses=courses)
-    fos = FieldOfStudy(terms=[t])
-    fa = FacultyAdministrator()
-    f = Faculty(
-        faculty_administrators=[fa],
-        fields_of_study=[fos]
-    )
-    print(f.model_dump_json(indent=4))
+    # courses = [Course() for _ in range(5)]
+    # t = Term(courses=courses)
+    # fos = FieldOfStudy(terms=[t])
+    # fa = FacultyAdministrator()
+    # f = Faculty(
+    #     faculty_administrators=[fa],
+    #     fields_of_study=[fos]
+    # )
+    # print(f.model_dump_json(indent=4))
+    #
+    # # Users Schema Test
+    # hc = HostCourse()
+    # u = User(
+    #     courses_hosted=[hc],
+    #     groups_hosted=[ObjectId(), ObjectId()],
+    #     profile_type=1
+    # )
+    # print(u.model_dump_json(indent=4))
 
-    # Users Schema Test
-    hc = HostCourse()
-    u = User(
-        courses_hosted=[hc],
-        groups_hosted=[ObjectId(), ObjectId()],
-        profile_type=1
-    )
-    print(u.model_dump_json(indent=4))
+    # Group Schema Test
+    ct = CollegeTerm()
+    s = [Student() for _ in range(5)]
+    g = Group(college_term=ct, students=s)
+    print(g.model_dump_json(indent=4))

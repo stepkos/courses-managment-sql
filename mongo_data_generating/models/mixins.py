@@ -6,7 +6,7 @@ from pydantic import Field
 from mongo_data_generating.models import fake
 
 
-class CreatedTimestampMixin:
+class TimestampMixin:
     # created_by: ObjectId = Field()
     created_by: ObjectId = Field(default_factory=ObjectId)  # For tests
     created_at: datetime | None = Field(default_factory=lambda: fake.date_time_this_year())

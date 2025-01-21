@@ -50,3 +50,10 @@ if __name__ == "__main__":
         profile_type=1
     )
     GenericRepository("users").insert_one(u)
+
+    # Group test
+    ct = CollegeTerm()
+    s = [Student() for _ in range(5)]
+    g = Group(college_term=ct, students=s)
+    print(g.image)
+    GenericRepository("groups").insert_one(g)
