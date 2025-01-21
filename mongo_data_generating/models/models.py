@@ -9,7 +9,7 @@ from pydantic import Field
 from mongo_data_generating.models import fake
 from mongo_data_generating.models.abstact import BaseModel, Question
 from mongo_data_generating.models.mixins import TimestampMixin
-from mongo_data_generating.models.utils import nullable_factory, generate_submission_time
+from mongo_data_generating.models.utils import nullable_factory
 
 
 # Faculty Schemas
@@ -180,88 +180,75 @@ class Solution(BaseModel):
     comments: List[SolutionComment] = Field()
     grade: Grade | None = Field()
 
-#
-# class Attempt(BaseModel):
-#     student_id: str
-#     test_id: str
-#     score: float | None = Field(
-#         default_factory=lambda: fake.pyfloat(min_value=0, max_value=100)
-#     )
-#     started_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
-#     submitted_at: str | None = Field(
-#         default_factory=lambda: generate_submission_time(datetime.fromisoformat(str(fake.date_time_this_year())))
-#     )
-#
-#     def __post_init__(self):
-#         # Jeśli submitted_at jest None, ustaw score na 0
-#         if self.submitted_at is None:
-#             object.__setattr__(self, 'score', 0.0)
-#
-#
+# Attempt Schemas
 
-#
 
-#
-# class ClosedAnswer(Answer):
-#     attempt_id: str
-#     closed_question_id: str
-#     submitted_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
-#
-#
-# class ClosedAnswerChoice(BaseModel):
-#     closed_answer_id: str
-#     choice_id: str
-#
-#
-# class OpenAnswer(Answer):
-#     open_question_id: str
-#     content: str = Field(default_factory=fake.text)
-#     attempt_id: str
-#     submitted_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
-#
+class ClosedAnswer(BaseModel):
+    closed_q_id: ObjectId = Field(default_factory=ObjectId)
+    choice: str = Field(default_factory=fake.word)
+
+
+class OpenAnswer(BaseModel):
+    open_q_id: ObjectId = Field(default_factory=ObjectId)
+    content: str = Field(default_factory=fake.text)
+    points: int = Field(default_factory=lambda: fake.random_int(min=0, max=100))
+
+
+class Attempt(BaseModel):
+    student_id: ObjectId = Field(default_factory=ObjectId)
+    test_id: ObjectId = Field(default_factory=ObjectId)
+    score: float | None = Field(
+        default_factory=lambda: fake.pyfloat(min_value=0, max_value=100)
+    )
+    grade: float = Field(default_factory=lambda x: random.choice([2.0, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5]))
+    started_at: datetime = Field(default_factory=lambda: fake.date_time_this_year())
+    submitted_at: datetime | None = Field(default_factory=lambda: fake.date_time_this_year())
+    answers_for_open_q: List[OpenAnswer] = Field()
+    answers_for_closed_q: List[ClosedAnswer] = Field()
 
 
 if __name__ == '__main__':
     # Faculty Schema Test
-    # courses = [Course() for _ in range(5)]
-    # t = Term(courses=courses)
-    # fos = FieldOfStudy(terms=[t])
-    # fa = FacultyAdministrator()
-    # f = Faculty(
-    #     faculty_administrators=[fa],
-    #     fields_of_study=[fos]
-    # )
-    # print(f.model_dump_json(indent=4))
-    #
-    # # Users Schema Test
-    # hc = HostCourse()
-    # u = User(
-    #     courses_hosted=[hc],
-    #     groups_hosted=[ObjectId(), ObjectId()],
-    #     profile_type=1
-    # )
-    # print(u.model_dump_json(indent=4))
+    courses = [Course() for _ in range(5)]
+    t = Term(courses=courses)
+    fos = FieldOfStudy(terms=[t])
+    fa = FacultyAdministrator()
+    f = Faculty(
+        faculty_administrators=[fa],
+        fields_of_study=[fos]
+    )
+    print(f.model_dump_json(indent=4))
+
+    # Users Schema Test
+    hc = HostCourse()
+    u = User(
+        courses_hosted=[hc],
+        groups_hosted=[ObjectId(), ObjectId()],
+        profile_type=1
+    )
+    print(u.model_dump_json(indent=4))
 
     # Group Schema Test
-    # ct = CollegeTerm()
-    # s = [Student() for _ in range(5)]
-    # g = Group(college_term=ct, students=s)
-    # print(g.model_dump_json(indent=4))
+    ct = CollegeTerm()
+    s = [Student() for _ in range(5)]
+    g = Group(college_term=ct, students=s)
+    print(g.model_dump_json(indent=4))
 
     # Entry Schema Test
-    # c = ClosedQuestion(choices=[Choice() for _ in range(4)])
-    # o = OpenQuestion()
-    # t = Test(
-    #     open_questions=[o],
-    #     closed_questions=[c]
-    # )
-    # e = Exercise()
-    # co = CommentOfEntry()
-    # entry = Entry(
-    #     test=t,
-    #     exercise=e,
-    #     comments=[co]
-    # )
+    c = ClosedQuestion(choices=[Choice() for _ in range(4)])
+    o = OpenQuestion()
+    t = Test(
+        open_questions=[o],
+        closed_questions=[c]
+    )
+    e = Exercise()
+    co = CommentOfEntry()
+    entry = Entry(
+        test=t,
+        exercise=e,
+        comments=[co]
+    )
+    print(entry.model_dump_json(indent=4))
 
     # Solution Schema Test
     sc = SolutionComment()
@@ -270,3 +257,13 @@ if __name__ == '__main__':
         comments=[sc],
         grade=g
     )
+    print(s.model_dump_json(indent=4))
+
+    # Attempt Schema Test
+    c = ClosedAnswer()
+    o = OpenAnswer()
+    a = Attempt(
+        answers_for_open_q=[o],
+        answers_for_closed_q=[c]
+    )
+    print(a.model_dump_json(indent=4))

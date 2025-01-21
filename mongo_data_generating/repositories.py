@@ -80,3 +80,12 @@ if __name__ == "__main__":
         grade=g
     )
     GenericRepository("solutions").insert_one(s)
+
+    # Attempt test
+    c = ClosedAnswer()
+    o = OpenAnswer()
+    a = Attempt(
+        answers_for_open_q=[o],
+        answers_for_closed_q=[c]
+    )
+    GenericRepository("attempts").insert_one(a)

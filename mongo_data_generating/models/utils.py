@@ -9,11 +9,6 @@ def nullable_factory[T](
     return lambda: generator() if random.random() < probability_of_none else None
 
 
-def generate_submission_time(start_time: datetime) -> str:
-    delay = timedelta(hours=random.randint(1, 6))
-    return (start_time + delay).strftime('%Y-%m-%d %H:%M:%S')
-
-
 # def generate_open_answer_seeder(
 #     num_records: int, open_question: List[OpenQuestion], attempts: List[Attempt]
 # ) -> List[OpenAnswer]:
