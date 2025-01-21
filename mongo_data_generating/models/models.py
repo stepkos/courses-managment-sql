@@ -1,6 +1,5 @@
 import random
-from collections import OrderedDict
-from typing import List, Sequence, Optional
+from typing import List
 
 from datetime import datetime, timedelta
 
@@ -160,31 +159,26 @@ class Entry(BaseModel, TimestampMixin):
     comments: List[CommentOfEntry] = Field()
 
 
+# Solution Schemas
+
+class SolutionComment(BaseModel):
+    commenter_id: ObjectId = Field(default_factory=ObjectId)
+    content: str = Field(default_factory=fake.text)
+    created_at: datetime = Field(default_factory=lambda: fake.date_time_this_year())
 
 
-#
-#
-# class Solution(BaseModel):
-#     exercise_id: str
-#     student_id: str
-#     grade: float = Field(
-#         default_factory=lambda: random.choice([2.0, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5])
-#     )
-#     submitted_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
-#     text_answer: str = Field(default_factory=fake.text)
-#
-#
-# class SolutionFile(File):
-#     solution_id: str
-#
-#
-# class SolutionComment(BaseModel):
-#     user_id: str | None
-#     solution_id: str
-#     content: str = Field(default_factory=fake.text)
-#     created_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
-#
-#
+class Grade(BaseModel):
+    value: float = Field(default_factory=lambda: random.choice([2.0, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5]))
+    added_at: datetime = Field(default_factory=lambda: fake.date_time_this_year())
+    added_by: ObjectId = Field(default_factory=ObjectId)
+
+
+class Solution(BaseModel):
+    student_id: ObjectId = Field(default_factory=ObjectId)
+    exercise_id: ObjectId = Field(default_factory=ObjectId)
+    file_url: str = Field(default_factory=fake.url)
+    comments: List[SolutionComment] = Field()
+    grade: Grade | None = Field()
 
 #
 # class Attempt(BaseModel):
@@ -255,16 +249,24 @@ if __name__ == '__main__':
     # print(g.model_dump_json(indent=4))
 
     # Entry Schema Test
-    c = ClosedQuestion(choices=[Choice() for _ in range(4)])
-    o = OpenQuestion()
-    t = Test(
-        open_questions=[o],
-        closed_questions=[c]
-    )
-    e = Exercise()
-    co = CommentOfEntry()
-    entry = Entry(
-        test=t,
-        exercise=e,
-        comments=[co]
+    # c = ClosedQuestion(choices=[Choice() for _ in range(4)])
+    # o = OpenQuestion()
+    # t = Test(
+    #     open_questions=[o],
+    #     closed_questions=[c]
+    # )
+    # e = Exercise()
+    # co = CommentOfEntry()
+    # entry = Entry(
+    #     test=t,
+    #     exercise=e,
+    #     comments=[co]
+    # )
+
+    # Solution Schema Test
+    sc = SolutionComment()
+    g = Grade()
+    s = Solution(
+        comments=[sc],
+        grade=g
     )

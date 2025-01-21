@@ -71,3 +71,12 @@ if __name__ == "__main__":
         comments=[co]
     )
     GenericRepository("entries").insert_one(entry)
+
+    # Solution test
+    sc = SolutionComment()
+    g = Grade()
+    s = Solution(
+        comments=[sc],
+        grade=g
+    )
+    GenericRepository("solutions").insert_one(s)
