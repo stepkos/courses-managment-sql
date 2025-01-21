@@ -45,9 +45,13 @@ def user_factory(
     return user
 
 
-def group_factory() -> Group:
+def group_factory(courses_ids: list[ObjectId]) -> Group:
     students = [Student() for _ in range(random.randint(1, 10))]
-    group = Group(college_term=CollegeTerm(), students=students)
+    group = Group(
+        college_term=CollegeTerm(),
+        students=students,
+        assigned_to_course_id=random.choice(courses_ids),
+    )
     return group
 
 

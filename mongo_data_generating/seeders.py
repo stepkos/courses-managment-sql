@@ -18,7 +18,7 @@ def seed_data(multi: int = 1):
     users = (user_factory(courses_ids) for _ in range(2000 * multi))
     GenericRepository("users").insert_many(users)
 
-    groups = (group_factory() for _ in range(50 * multi))
+    groups = (group_factory(courses_ids) for _ in range(50 * multi))
     GenericRepository("groups").insert_many(groups)
 
     entries = (entry_factory() for _ in range(100 * multi))
