@@ -4,6 +4,7 @@ from typing import List, Sequence, Optional
 
 from datetime import datetime, timedelta
 
+from bson import ObjectId
 from pydantic import Field
 
 from mongo_data_generating.models import fake
@@ -46,8 +47,25 @@ class Faculty(BaseModel):
 
 # Users Schema
 
+class HostCourse(BaseModel, CreatedTimestampMixin):
+    course_id: ObjectId = Field(default_factory=ObjectId)
+    is_admin: bool = Field(
+        default_factory=lambda: fake.boolean(chance_of_getting_true=20)
+    )
 
 
+class User(BaseModel):
+    first_name: str = Field(default_factory=fake.first_name)
+    last_name: str = Field(default_factory=fake.last_name)
+    email: str = Field(default_factory=fake.email)
+    password: str = Field(default_factory=lambda: fake.password(length=12))
+    is_active: bool = Field(
+        default_factory=lambda: random.choices([True, False], weights=[75, 25])[0]
+    )
+    degree: str | None = Field(default_factory=lambda: random.choice(["Bachelor", "Master", "PhD"]))
+    profile_type: int = Field()  # 0 - administrator, 1 - host, 2 - student
+    courses_hosted: List[HostCourse] = Field()
+    groups_hosted: List[ObjectId] = Field()
 
 
 # class CollegeTerm(BaseModel):
@@ -56,22 +74,6 @@ class Faculty(BaseModel):
 #     end_date: str | None = Field(
 #         default_factory=lambda: str(fake.date_time_this_year())
 #     )
-#
-#
-# class Degree(BaseModel):
-#     name: str  # "inz", "mgr", "dr", "prof"
-#
-#
-# class User(BaseModel):
-#     first_name: str = Field(default_factory=fake.first_name)
-#     surname: str = Field(default_factory=fake.last_name)
-#     email: str = Field(default_factory=fake.email)
-#     password: str = Field(default_factory=lambda: fake.password(length=12))
-#     is_active: bool = Field(
-#         default_factory=lambda: random.choices([True, False], weights=[75, 25])[0]
-#     )
-#     degree: str | None
-#     profile_type: int  # 0 - administrator, 1 - host, 2 - student
 #
 #
 # class Group(BaseModel):
@@ -91,19 +93,7 @@ class Faculty(BaseModel):
 #     created_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
 #
 #
-# class HostGroup(BaseModel):
-#     host_id: str
-#     group_id: str
-#
-#
-# class HostCourse(BaseModel):
-#     host_id: str
-#     course_id: str
-#     is_course_admin: bool = Field(
-#         default_factory=lambda: fake.boolean(chance_of_getting_true=20)
-#     )
-#     created_by: str | None
-#     created_at: str = Field(default_factory=lambda: str(fake.date_time_this_year()))
+
 #
 #
 # class Entry(BaseModel):
@@ -227,16 +217,22 @@ class Faculty(BaseModel):
 
 
 if __name__ == '__main__':
-    # Faculty Schema
-    # courses = [Course() for _ in range(5)]
-    # t = Term(courses=courses)
-    # fos = FieldOfStudy(terms=[t])
-    # fa = FacultyAdministrator()
-    # f = Faculty(
-    #     faculty_administrators=[fa],
-    #     fields_of_study=[fos]
-    # )
-    # print(f.model_dump_json(indent=4))
+    # Faculty Schema Test
+    courses = [Course() for _ in range(5)]
+    t = Term(courses=courses)
+    fos = FieldOfStudy(terms=[t])
+    fa = FacultyAdministrator()
+    f = Faculty(
+        faculty_administrators=[fa],
+        fields_of_study=[fos]
+    )
+    print(f.model_dump_json(indent=4))
 
-    # Users Schema
-    ...
+    # Users Schema Test
+    hc = HostCourse()
+    u = User(
+        courses_hosted=[hc],
+        groups_hosted=[ObjectId(), ObjectId()],
+        profile_type=1
+    )
+    print(u.model_dump_json(indent=4))
