@@ -1,9 +1,33 @@
-__all__ = ['FacultyAdministrator', 'Course', 'Term', 'FieldOfStudy', 'Faculty', 'HostCourse', 'User', 'CollegeTerm', 'Student', 'Group', 'Exercise', 'Choice', 'OpenQuestion', 'ClosedQuestion', 'Test', 'CommentUser', 'CommentOfEntry', 'Entry', 'SolutionComment', 'Grade', 'Solution', 'ClosedAnswer', 'OpenAnswer', 'Attempt']
+__all__ = [
+    "FacultyAdministrator",
+    "Course",
+    "Term",
+    "FieldOfStudy",
+    "Faculty",
+    "HostCourse",
+    "User",
+    "CollegeTerm",
+    "Student",
+    "Group",
+    "Exercise",
+    "Choice",
+    "OpenQuestion",
+    "ClosedQuestion",
+    "Test",
+    "CommentUser",
+    "CommentOfEntry",
+    "Entry",
+    "SolutionComment",
+    "Grade",
+    "Solution",
+    "ClosedAnswer",
+    "OpenAnswer",
+    "Attempt",
+]
 
 import random
-from typing import List
-
 from datetime import datetime
+from typing import List
 
 from bson import ObjectId
 from pydantic import Field
@@ -12,15 +36,17 @@ from mongo_data_generating.models import fake
 from mongo_data_generating.models.abstact import BaseModel, Question
 from mongo_data_generating.models.mixins import TimestampMixin
 
-
 # Faculty Schemas
+
 
 class FacultyAdministrator(BaseModel):
     pass
 
 
 class Course(BaseModel, TimestampMixin):
-    title: str = Field(default_factory=lambda: ' '.join(fake.words(random.randint(1, 4))))
+    title: str = Field(
+        default_factory=lambda: " ".join(fake.words(random.randint(1, 4)))
+    )
     description: str = Field(default_factory=fake.text)
 
 
@@ -31,7 +57,9 @@ class Term(BaseModel, TimestampMixin):
 
 class FieldOfStudy(BaseModel, TimestampMixin):
     name: str = Field(default_factory=fake.word)
-    description: str = Field(default_factory=lambda: ' '.join(fake.words(random.randint(5, 15))))
+    description: str = Field(
+        default_factory=lambda: " ".join(fake.words(random.randint(5, 15)))
+    )
     start_year: int = Field(default_factory=lambda: fake.random_int(min=2010, max=2025))
     terms: List[Term] = Field()
 
@@ -46,6 +74,7 @@ class Faculty(BaseModel):
 
 
 # Users Schemas
+
 
 class HostCourse(BaseModel, TimestampMixin):
     course_id: ObjectId = Field(default_factory=ObjectId)
@@ -62,7 +91,9 @@ class User(BaseModel):
     is_active: bool = Field(
         default_factory=lambda: random.choices([True, False], weights=[75, 25])[0]
     )
-    degree: str | None = Field(default_factory=lambda: random.choice(["Bachelor", "Master", "PhD"]))
+    degree: str | None = Field(
+        default_factory=lambda: random.choice(["Bachelor", "Master", "PhD"])
+    )
     profile_type: int = Field()  # 0 - administrator, 1 - host, 2 - student
     courses_hosted: List[HostCourse] = Field()
     groups_hosted: List[ObjectId] = Field()
@@ -94,11 +125,10 @@ class Group(BaseModel, TimestampMixin):
 
 # Entries Schemas
 
+
 class Exercise(BaseModel):
     exercise_id: ObjectId = Field(default_factory=ObjectId)
-    due_date: datetime = Field(
-        default_factory=lambda x: fake.date_time_this_year()
-    )
+    due_date: datetime = Field(default_factory=lambda x: fake.date_time_this_year())
 
 
 class Choice(BaseModel):
@@ -132,7 +162,9 @@ class Test(BaseModel):
     max_seconds_for_closed: int | None = Field(
         default_factory=lambda: fake.pyint(min_value=0, max_value=120)
     )
-    duration_in_minutes: int = Field(default_factory=lambda: fake.pyint(min_value=0, max_value=180))
+    duration_in_minutes: int = Field(
+        default_factory=lambda: fake.pyint(min_value=0, max_value=180)
+    )
     closed_questions: List[ClosedQuestion] = Field()
     open_questions: List[OpenQuestion] = Field()
 
@@ -162,6 +194,7 @@ class Entry(BaseModel, TimestampMixin):
 
 # Solution Schemas
 
+
 class SolutionComment(BaseModel):
     commenter_id: ObjectId = Field(default_factory=ObjectId)
     content: str = Field(default_factory=fake.text)
@@ -169,7 +202,9 @@ class SolutionComment(BaseModel):
 
 
 class Grade(BaseModel):
-    value: float = Field(default_factory=lambda: random.choice([2.0, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5]))
+    value: float = Field(
+        default_factory=lambda: random.choice([2.0, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5])
+    )
     added_at: datetime = Field(default_factory=lambda: fake.date_time_this_year())
     added_by: ObjectId = Field(default_factory=ObjectId)
 
@@ -180,6 +215,7 @@ class Solution(BaseModel):
     file_url: str = Field(default_factory=fake.url)
     comments: List[SolutionComment] = Field()
     grade: Grade | None = Field()
+
 
 # Attempt Schemas
 
@@ -201,31 +237,30 @@ class Attempt(BaseModel):
     score: float | None = Field(
         default_factory=lambda: fake.pyfloat(min_value=0, max_value=100)
     )
-    grade: float = Field(default_factory=lambda x: random.choice([2.0, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5]))
+    grade: float = Field(
+        default_factory=lambda x: random.choice([2.0, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5])
+    )
     started_at: datetime = Field(default_factory=lambda: fake.date_time_this_year())
-    submitted_at: datetime | None = Field(default_factory=lambda: fake.date_time_this_year())
+    submitted_at: datetime | None = Field(
+        default_factory=lambda: fake.date_time_this_year()
+    )
     answers_for_open_q: List[OpenAnswer] = Field()
     answers_for_closed_q: List[ClosedAnswer] = Field()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Faculty Schema Test
     courses = [Course() for _ in range(5)]
     t = Term(courses=courses)
     fos = FieldOfStudy(terms=[t])
     fa = FacultyAdministrator()
-    f = Faculty(
-        faculty_administrators=[fa],
-        fields_of_study=[fos]
-    )
+    f = Faculty(faculty_administrators=[fa], fields_of_study=[fos])
     print(f.model_dump_json(indent=4))
 
     # Users Schema Test
     hc = HostCourse()
     u = User(
-        courses_hosted=[hc],
-        groups_hosted=[ObjectId(), ObjectId()],
-        profile_type=1
+        courses_hosted=[hc], groups_hosted=[ObjectId(), ObjectId()], profile_type=1
     )
     print(u.model_dump_json(indent=4))
 
@@ -238,33 +273,20 @@ if __name__ == '__main__':
     # Entry Schema Test
     c = ClosedQuestion(choices=[Choice() for _ in range(4)])
     o = OpenQuestion()
-    t = Test(
-        open_questions=[o],
-        closed_questions=[c]
-    )
+    t = Test(open_questions=[o], closed_questions=[c])
     e = Exercise()
     co = CommentOfEntry()
-    entry = Entry(
-        test=t,
-        exercise=e,
-        comments=[co]
-    )
+    entry = Entry(test=t, exercise=e, comments=[co])
     print(entry.model_dump_json(indent=4))
 
     # Solution Schema Test
     sc = SolutionComment()
     g = Grade()
-    s = Solution(
-        comments=[sc],
-        grade=g
-    )
+    s = Solution(comments=[sc], grade=g)
     print(s.model_dump_json(indent=4))
 
     # Attempt Schema Test
     c = ClosedAnswer()
     o = OpenAnswer()
-    a = Attempt(
-        answers_for_open_q=[o],
-        answers_for_closed_q=[c]
-    )
+    a = Attempt(answers_for_open_q=[o], answers_for_closed_q=[c])
     print(a.model_dump_json(indent=4))

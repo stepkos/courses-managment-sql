@@ -1,5 +1,11 @@
-from mongo_data_generating.factories import faculty_factory, user_factory, group_factory, entry_factory, \
-    solution_factory, attempt_factory
+from mongo_data_generating.factories import (
+    attempt_factory,
+    entry_factory,
+    faculty_factory,
+    group_factory,
+    solution_factory,
+    user_factory,
+)
 from mongo_data_generating.repositories import GenericRepository
 
 

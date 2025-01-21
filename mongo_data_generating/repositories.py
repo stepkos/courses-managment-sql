@@ -2,9 +2,9 @@ from typing import Iterable
 
 from bson import ObjectId
 
+from mongo_data_generating.clients import mongo_client_ctx
 from mongo_data_generating.models.abstact import BaseModel
 from mongo_data_generating.models.models import *
-from mongo_data_generating.clients import mongo_client_ctx
 
 
 class GenericRepository:
@@ -17,9 +17,7 @@ class GenericRepository:
         with mongo_client_ctx() as client:
             db = client[self.DB_NAME]
             collection = db[self.schema_name]
-            return collection.insert_one(
-                instance.model_dump(by_alias=True)
-            )
+            return collection.insert_one(instance.model_dump(by_alias=True))
 
     def insert_many(self, instances: Iterable[BaseModel]):
         with mongo_client_ctx() as client:
@@ -37,18 +35,13 @@ if __name__ == "__main__":
     t = Term(courses=courses)
     fos = FieldOfStudy(terms=[t])
     fa = FacultyAdministrator()
-    f = Faculty(
-        faculty_administrators=[fa],
-        fields_of_study=[fos]
-    )
+    f = Faculty(faculty_administrators=[fa], fields_of_study=[fos])
     GenericRepository("faculties").insert_one(f)
 
     # User test
     hc = HostCourse()
     u = User(
-        courses_hosted=[hc],
-        groups_hosted=[ObjectId(), ObjectId()],
-        profile_type=1
+        courses_hosted=[hc], groups_hosted=[ObjectId(), ObjectId()], profile_type=1
     )
     GenericRepository("users").insert_one(u)
 
@@ -62,33 +55,20 @@ if __name__ == "__main__":
     # Entry test
     c = ClosedQuestion(choices=[Choice() for _ in range(4)])
     o = OpenQuestion()
-    t = Test(
-        open_questions=[o],
-        closed_questions=[c]
-    )
+    t = Test(open_questions=[o], closed_questions=[c])
     e = Exercise()
     co = CommentOfEntry()
-    entry = Entry(
-        test=t,
-        exercise=e,
-        comments=[co]
-    )
+    entry = Entry(test=t, exercise=e, comments=[co])
     GenericRepository("entries").insert_one(entry)
 
     # Solution test
     sc = SolutionComment()
     g = Grade()
-    s = Solution(
-        comments=[sc],
-        grade=g
-    )
+    s = Solution(comments=[sc], grade=g)
     GenericRepository("solutions").insert_one(s)
 
     # Attempt test
     c = ClosedAnswer()
     o = OpenAnswer()
-    a = Attempt(
-        answers_for_open_q=[o],
-        answers_for_closed_q=[c]
-    )
+    a = Attempt(answers_for_open_q=[o], answers_for_closed_q=[c])
     GenericRepository("attempts").insert_one(a)

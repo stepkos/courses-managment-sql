@@ -1,8 +1,8 @@
 from abc import ABC
 
+from bson import ObjectId
 from pydantic import BaseModel as _BaseModel
 from pydantic import Field
-from bson import ObjectId
 
 from mongo_data_generating.models import fake
 

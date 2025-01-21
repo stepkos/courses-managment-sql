@@ -1,10 +1,8 @@
+import os
 from contextlib import contextmanager
 
-from pymongo import MongoClient
-
 from dotenv import load_dotenv
-
-import os
+from pymongo import MongoClient
 
 load_dotenv()
 
@@ -17,7 +15,7 @@ def mongo_client_ctx():
         user=os.getenv("MONGO_USER"),
         password=os.getenv("MONGO_PASSWORD"),
         host=os.getenv("MONGO_HOST"),
-        port=os.getenv("MONGO_PORT")
+        port=os.getenv("MONGO_PORT"),
     )
     with MongoClient(url) as client:
         yield client
