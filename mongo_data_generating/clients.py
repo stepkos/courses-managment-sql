@@ -7,6 +7,7 @@ from pymongo import MongoClient
 load_dotenv()
 
 BASE_URL = "mongodb://{user}:{password}@{host}:{port}/?directConnection=true"
+# BASE_URL = "mongodb://{host}:{port}/?directConnection=true" without auth
 
 
 @contextmanager

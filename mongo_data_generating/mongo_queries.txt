@@ -1,0 +1,217 @@
+1. Znajdź użytkowników prowadzących więcej niż 5 kursów i pokaż ich stopnie naukowe:
+
+db.users.aggregate([
+  { $project: {
+    full_name: { $concat: ["$first_name", " ", "$last_name"] },
+    coursesHosted: { $size: "$courses_hosted" },
+    degree: 1
+  }},
+  { $match: { coursesHosted: { $gt: 5 } } },
+  { $sort: { coursesHosted: -1 } }
+])
+
+
+
+
+
+2. Znajdź najlepszych studentów w każdej grupie:
+
+db.groups.aggregate([
+  { $unwind: "$students" },
+  { $lookup: {
+    from: "solutions",
+    localField: "students.student_id",
+    foreignField: "student_id",
+    as: "student_solutions"
+  }},
+  { $match: { "student_solutions.grade.value": { $exists: true } } },
+  { $project: {
+    group_name: "$name",
+    student_name: { $concat: ["$students.first_name", " ", "$students.last_name"] },
+    average_grade: { $avg: "$student_solutions.grade.value" }
+  }},
+  { $sort: { average_grade: -1 } },
+  { $group: {
+    _id: "$group_name",
+    top_students: {
+      $push: {
+        student: "$student_name",
+        average_grade: "$average_grade"
+      }
+    }
+  }},
+  { $project: {
+    top_students: { $slice: ["$top_students", 3] }
+  }}
+])
+
+3. Znajdź kursy z największą liczbą pytań testowych:
+
+db.entries.aggregate([
+  { $match: { "test": { $exists: true } } },
+  { $project: {
+    test_title: "$test.title",
+    total_questions: {
+      $add: [
+        { $size: "$test.closed_questions" },
+        { $size: "$test.open_questions" }
+      ]
+    }
+  }},
+  { $sort: { total_questions: -1 } },
+  { $limit: 5 }
+])
+
+
+
+
+4. Znajdź najaktywniejszych użytkowników na podstawie liczby komentarzy:
+
+
+db.entries.aggregate([
+  { $unwind: "$comments" },
+  { $group: {
+    _id: "$comments.user.user_id",
+    user_name: { $first: { $concat: ["$comments.user.first_name", " ", "$comments.user.last_name"] } },
+    total_comments: { $sum: 1 }
+  }},
+  { $sort: { total_comments: -1 } },
+  { $limit: 10 }
+])
+
+
+5. Znajdź średnią liczbę kursów na semestr w każdym kierunku studiów:
+
+
+db.faculties.aggregate([
+  { $unwind: "$fields_of_study" },
+  { $unwind: "$fields_of_study.terms" },
+  { $project: {
+    field_name: "$fields_of_study.name",
+    term_number: "$fields_of_study.terms.term_number",
+    courses_count: { $size: { $ifNull: ["$fields_of_study.terms.courses", []] } }
+  }},
+  { $group: {
+    _id: "$field_name",
+    avg_courses_per_term: { $avg: "$courses_count" }
+  }}
+])
+
+6. Znajdź grupy z najwyższym współczynnikiem komentarzy na wpis: 
+db.entries.aggregate([
+  { $group: {
+    _id: "$group_id",
+    comments_per_entry: { 
+      $avg: { $size: "$comments" }
+    }
+  }},
+  { $lookup: {
+    from: "groups",
+    localField: "_id",
+    foreignField: "_id",
+    as: "group_info"
+  }},
+  { $project: {
+    group_name: { $arrayElemAt: ["$group_info.name", 0] },
+    comments_per_entry: 1
+  }},
+  { $sort: { comments_per_entry: -1 } }
+])
+
+
+7. Analiza aktywności użytkowników w zależności od stopnia naukowego
+
+db.users.aggregate([
+  { $project: {
+    degree: 1,
+    courses_hosted: { $size: "$courses_hosted" }
+  }},
+  { $group: {
+    _id: "$degree",
+    avg_courses: { $avg: "$courses_hosted" },
+    users_count: { $sum: 1 }
+  }}
+])
+
+
+STATYSTYCZNE
+
+
+8. liczba zdających/niezdających
+
+
+
+db.attempts.aggregate([
+  { $group: {
+    _id: null,
+    total: { $sum: 1 },
+    passing: {
+      $sum: {
+        $cond: [{ $gte: ["$grade", 3.0] }, 1, 0]
+      }
+    }
+  }},
+  { $project: {
+    total: 1,
+    passing_percentage: {
+      $multiply: [
+        { $divide: ["$passing", "$total"] },
+        100
+      ]
+    }
+  }}
+])
+
+9. Mediana Ocen z zadan 
+db.solutions.aggregate([
+  { $match: { "grade.value": { $exists: true } } },
+  { $group: {
+    _id: "$exercise_id",
+    grades: { $push: "$grade.value" },
+    count: { $sum: 1 }
+  }},
+  { $project: {
+    exercise_id: "$_id",
+    count: 1,
+    median: {
+      $let: {
+        vars: {
+          sorted: { $sortArray: { input: "$grades", sortBy: 1 } }
+        },
+        in: {
+          $cond: {
+            if: { $eq: [{ $mod: ["$count", 2] }, 0] },
+            then: {
+              $avg: [
+                { $arrayElemAt: ["$$sorted", { $subtract: [{ $divide: ["$count", 2] }, 1] }] },
+                { $arrayElemAt: ["$$sorted", { $divide: ["$count", 2] }] }
+              ]
+            },
+            else: {
+              $arrayElemAt: ["$$sorted", { $floor: { $divide: ["$count", 2] } }]
+            }
+          }
+        }
+      }
+    },
+    min: { $min: "$grades" },
+    max: { $max: "$grades" },
+    avg: { $avg: "$grades" }
+  }},
+  { $sort: { exercise_id: 1 } }
+])
+
+10.  Proporcja administratorów do zwykłych użytkowników w kursach:  
+db.users.aggregate([
+  { $unwind: "$courses_hosted" },
+  { $group: {
+    _id: "$courses_hosted.course_id",
+    admin_ratio: {
+      $avg: { $cond: ["$courses_hosted.is_admin", 1, 0] }
+    }
+  }},
+  { $group: {
+    _id: null,
+    avg_admin_ratio: { $avg: "$admin_ratio" }
+  }}
+])
